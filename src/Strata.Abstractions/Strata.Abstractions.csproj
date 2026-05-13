@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>Strata.Abstractions</PackageId>
+    <Description>Strata abstractions: ITreeNode, ISelector, IProjection, IPropertyValue. No third-party dependencies.</Description>
+  </PropertyGroup>
+</Project>
