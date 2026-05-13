@@ -25,7 +25,7 @@ Pre-alpha. Phase -1 scaffold. See [`docs/04-plan.md`](docs/04-plan.md) for roadm
 
 ## Target framework
 
-.NET 9.0+ (Native AOT compatible).
+.NET 10.0+ (Native AOT compatible).
 
 ## License
 

@@ -151,7 +151,7 @@ A re-cascade of a 1000-node tree against a 100-rule stylesheet MUST allocate les
 
 ### NFR-4 — Target framework
 
-Strata targets **.NET 9.0+**. No .NET Standard 2.0 fallback. No .NET Framework support.
+Strata targets **.NET 10.0+**. No .NET Standard 2.0 fallback. No .NET Framework support. .NET 10 chosen for improved Native AOT codegen, smaller AOT binaries, and dynamic-PGO-friendly tiered compilation.
 
 ### NFR-5 — Public API surface
 
