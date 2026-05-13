@@ -8,7 +8,7 @@
     <EnableAotAnalyzer>false</EnableAotAnalyzer>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <!-- xunit naming convention uses underscores; skip CA1707 + CA-on-tests noise -->
-    <NoWarn>$(NoWarn);CA1707;CA1062;CA1822;CA1707;CA2007</NoWarn>
+    <NoWarn>$(NoWarn);CA1707;CA1062;CA1822;CA2007;CA1859;CA1861;CA1303;CA1031</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
