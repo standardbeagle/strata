@@ -33,6 +33,7 @@
 
     <!-- Adapters -->
     <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />
+    <PackageVersion Include="Microsoft.PowerShell.SDK" Version="7.6.1" />
 
     <!-- Benchmarks -->
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />

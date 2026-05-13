@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>Strata.Adapters.PSObject</PackageId>
+    <Description>Strata tree adapter wrapping PowerShell PSObject. Cmdlet-author-friendly: compiles against PowerShellStandard.Library only.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
+    <PackageReference Include="PowerShellStandard.Library" />
+  </ItemGroup>
+</Project>

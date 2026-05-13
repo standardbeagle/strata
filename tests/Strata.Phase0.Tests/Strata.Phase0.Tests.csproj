@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsAotCompatible>false</IsAotCompatible>
+    <IsTrimmable>false</IsTrimmable>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>false</EnableAotAnalyzer>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CA1707;CA1062;CA1822;CA2007;CA1859;CA1861;CA1303;CA1031;NU1903</NoWarn>
+    <!-- NU1903: PowerShell.SDK 7.6.1 pulls System.Security.Cryptography.Xml whose
+         advisory list still flags 10.0.6 even though fix shipped. Test-only dep, not packed. -->
+    <NuGetAuditMode>direct</NuGetAuditMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="coverlet.collector" />
+    <!-- Tests load the PowerShell runtime to instantiate real PSObjects. -->
+    <PackageReference Include="Microsoft.PowerShell.SDK" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Strata.Core\Strata.Core.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Adapters.PSObject\Strata.Adapters.PSObject.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Adapters.JsonNode\Strata.Adapters.JsonNode.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reuse the Phase 0 stand-in selector from Core.Tests. -->
+    <Compile Include="..\Strata.Core.Tests\TestFixtures\KindSelector.cs"
+             Link="Shared\KindSelector.cs" />
+  </ItemGroup>
+</Project>

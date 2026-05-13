@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>Strata.Adapters.JsonNode</PackageId>
+    <Description>Strata tree adapter wrapping System.Text.Json JsonNode. No third-party dependencies.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
+  </ItemGroup>
+</Project>
