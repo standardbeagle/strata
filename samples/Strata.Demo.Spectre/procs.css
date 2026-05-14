@@ -1,0 +1,25 @@
+/* Sample Strata stylesheet — styling a process list.
+   Demonstrates type selectors, classes, attribute selectors, and the cascade. */
+
+Process {
+    color: white;
+}
+
+Process[Status="running"] {
+    color: brightgreen;
+}
+
+Process.high-cpu {
+    color: brightyellow;
+    font-weight: bold;
+}
+
+Process.zombie {
+    color: gray;
+    font-style: italic;
+}
+
+Process[Name="system"] {
+    color: brightred !important;
+    text-decoration: underline;
+}

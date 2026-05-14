@@ -4,6 +4,13 @@ using Strata.Core.Tests.TestFixtures;
 
 public sealed class TypedPredicateTests
 {
+    static TypedPredicateTests()
+    {
+        // [expr] evaluation is opt-in (reflection-based, not trim-safe). Enable it for
+        // the test run. Trim analyzer is disabled in the test csproj so this is clean.
+        CssPredicates.Enable();
+    }
+
     private sealed record Process(int Id, string Name, double Cpu, int Threads);
 
     private static readonly CssSelectorLanguage Css = new();

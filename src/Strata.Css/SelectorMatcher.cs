@@ -64,12 +64,10 @@ internal static class SelectorMatcher
 
         foreach (var pred in compound.TypedPredicates)
         {
-#pragma warning disable IL2026 // [expr] DSL is opt-in; warning surfaces at stylesheet author site, not here.
             if (!pred.Evaluate(node.Underlying))
             {
                 return false;
             }
-#pragma warning restore IL2026
         }
 
         foreach (var p in compound.Pseudos)

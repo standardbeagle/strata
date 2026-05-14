@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Demo app: AOT smoke target for the styling + projection path. -->
+    <PublishAot>true</PublishAot>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="procs.css" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Strata.Core\Strata.Core.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Css\Strata.Css.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Adapters.JsonNode\Strata.Adapters.JsonNode.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Properties.Styling\Strata.Properties.Styling.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Render.Spectre\Strata.Render.Spectre.csproj" />
+  </ItemGroup>
+</Project>

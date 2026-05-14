@@ -1,39 +1,32 @@
-using System.Diagnostics.CodeAnalysis;
 using Strata.Css.Expressions;
 
 namespace Strata.Css;
 
 /// <summary>
-/// Compiled predicate for the <c>[expr]</c> attribute form
-/// (e.g. <c>Process[CPU &gt; 50 and Name.StartsWith("chr")]</c>).
+/// A parsed <c>[expr]</c> typed predicate (e.g. <c>Process[CPU &gt; 50 and
+/// Name.StartsWith("chr")]</c>).
 /// </summary>
 /// <remarks>
-/// Implementation is a hand-written tokenizing parser + tree-walking interpreter — fully
-/// AOT-compatible. There is no <c>LambdaExpression.Compile()</c> /
-/// <c>Expression.Compile()</c>, and no dynamic code generation.
-///
-/// <para>Member lookup uses <see cref="Type.GetProperty(string)"/> /
-/// <see cref="Type.GetMethod(string, System.Type[])"/>, which is AOT-safe at runtime but is
-/// trim-sensitive: callers that publish with aggressive trimming should preserve referenced
-/// members on the source type via
-/// <see cref="DynamicallyAccessedMembersAttribute"/>.</para>
+/// Parsing the expression text into an <see cref="ExprNode"/> AST is AOT-clean — the
+/// tokenizer and parser use no reflection. <em>Evaluation</em> needs reflection over the
+/// node's <see cref="ITreeNode.Underlying"/> type, so it is routed through the opt-in
+/// <see cref="CssPredicates"/> hook. A stylesheet that uses <c>[expr]</c> without calling
+/// <see cref="CssPredicates.Enable"/> throws a clear error at match time rather than
+/// silently mis-matching.
 /// </remarks>
 internal sealed class TypedPredicate
 {
-    private readonly ExprEvaluator _evaluator;
-
     public TypedPredicate(string expression)
     {
         ArgumentNullException.ThrowIfNull(expression);
         Expression = expression;
-        _evaluator = new ExprEvaluator(ExprParser.Parse(expression));
+        Ast = ExprParser.Parse(expression);
     }
 
     public string Expression { get; }
 
-    [RequiresUnreferencedCode(
-        "Strata.Css [expr] DSL relies on reflection over the source type. Trim-aware " +
-        "callers should annotate the adapter's source type with DynamicallyAccessedMembers.")]
+    internal ExprNode Ast { get; }
+
     public bool Evaluate(object? underlying)
     {
         if (underlying is null)
@@ -41,6 +34,12 @@ internal sealed class TypedPredicate
             return false;
         }
 
-        return _evaluator.EvaluateBool(underlying);
+        var evaluator = CssPredicates.Evaluator
+            ?? throw new InvalidOperationException(
+                $"Selector uses a typed predicate '[{Expression}]' but [expr] support is " +
+                "not enabled. Call CssPredicates.Enable() once at startup. " +
+                "(Note: [expr] evaluation uses reflection and is not trim-safe.)");
+
+        return evaluator(Ast, underlying);
     }
 }
