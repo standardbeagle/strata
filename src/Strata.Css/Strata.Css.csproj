@@ -7,6 +7,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
     <ProjectReference Include="..\Strata.Core\Strata.Core.csproj" />
-    <PackageReference Include="System.Linq.Dynamic.Core" />
   </ItemGroup>
 </Project>
