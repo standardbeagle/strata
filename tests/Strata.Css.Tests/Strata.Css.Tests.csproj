@@ -19,9 +19,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Strata.Css\Strata.Css.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Core\Strata.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Strata.Core.Tests\TestFixtures\TestNode.cs" Link="Shared\TestNode.cs" />
+    <Compile Include="..\Strata.Core.Tests\TestFixtures\StringValue.cs" Link="Shared\StringValue.cs" />
   </ItemGroup>
 </Project>

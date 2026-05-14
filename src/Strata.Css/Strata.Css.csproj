@@ -6,5 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
+    <ProjectReference Include="..\Strata.Core\Strata.Core.csproj" />
   </ItemGroup>
 </Project>
