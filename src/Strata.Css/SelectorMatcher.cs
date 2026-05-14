@@ -62,6 +62,14 @@ internal static class SelectorMatcher
             }
         }
 
+        foreach (var pred in compound.TypedPredicates)
+        {
+            if (!pred.Evaluate(node.Underlying))
+            {
+                return false;
+            }
+        }
+
         foreach (var p in compound.Pseudos)
         {
             if (!MatchPseudo(p, node, pseudos))

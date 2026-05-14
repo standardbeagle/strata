@@ -132,6 +132,7 @@ internal static class SelectorParser
         string? id = null;
         var classes = new List<string>();
         var attributes = new List<AttributeMatcher>();
+        var typedPredicates = new List<TypedPredicate>();
         var pseudos = new List<PseudoEntry>();
         var any = false;
 
@@ -184,7 +185,7 @@ internal static class SelectorParser
             else if (c == '[')
             {
                 i++;
-                attributes.Add(ParseAttribute(src, ref i));
+                ParseBracketed(src, ref i, attributes, typedPredicates);
                 any = true;
             }
             else if (c == ':')
@@ -216,8 +217,177 @@ internal static class SelectorParser
             Id = id,
             Classes = classes.ToArray(),
             Attributes = attributes.ToArray(),
+            TypedPredicates = typedPredicates.ToArray(),
             Pseudos = pseudos.ToArray(),
         };
+    }
+
+    /// <summary>
+    /// Read the content of <c>[...]</c> and dispatch to either <see cref="AttributeMatcher"/>
+    /// (simple <c>attr (op value)?</c>) or <see cref="TypedPredicate"/> (expression).
+    /// Heuristic: if the content matches <c>IDENT (op (STRING|IDENT))?</c> exactly, it's
+    /// simple. Otherwise it's an expression. This matches spec §3.1's distinction.
+    /// </summary>
+    private static void ParseBracketed(
+        ReadOnlySpan<char> src,
+        ref int i,
+        List<AttributeMatcher> attributes,
+        List<TypedPredicate> typedPredicates)
+    {
+        // Scan to matching ']' with quote + paren awareness; capture content.
+        var start = i;
+        var depth = 0;
+        while (i < src.Length)
+        {
+            var c = src[i];
+            if (c == '"' || c == '\'')
+            {
+                i++;
+                while (i < src.Length && src[i] != c)
+                {
+                    if (src[i] == '\\' && i + 1 < src.Length)
+                    {
+                        i++;
+                    }
+
+                    i++;
+                }
+
+                if (i < src.Length)
+                {
+                    i++;
+                }
+
+                continue;
+            }
+
+            if (c == '(' || c == '[')
+            {
+                depth++;
+            }
+            else if (c == ')')
+            {
+                depth--;
+            }
+            else if (c == ']')
+            {
+                if (depth == 0)
+                {
+                    break;
+                }
+
+                depth--;
+            }
+
+            i++;
+        }
+
+        if (i >= src.Length || src[i] != ']')
+        {
+            throw new FormatException("Unclosed '['.");
+        }
+
+        var content = src[start..i].ToString();
+        i++; // consume ']'
+
+        if (TryParseSimpleAttribute(content, out var attr))
+        {
+            attributes.Add(attr);
+        }
+        else
+        {
+            typedPredicates.Add(new TypedPredicate(content.Trim()));
+        }
+    }
+
+    /// <summary>
+    /// Try parsing <paramref name="content"/> as the simple attribute form
+    /// <c>IDENT (op (STRING|IDENT))?</c>. Returns false if the content uses any other
+    /// operator or extra tokens — caller treats those as a typed predicate.
+    /// </summary>
+    private static bool TryParseSimpleAttribute(string content, out AttributeMatcher attr)
+    {
+        attr = null!;
+        var src = content.AsSpan();
+        var i = 0;
+        SkipWhitespace(src, ref i);
+        if (i >= src.Length || !IsIdentStart(src[i]))
+        {
+            return false;
+        }
+
+        var name = ReadIdent(src, ref i);
+        SkipWhitespace(src, ref i);
+
+        if (i >= src.Length)
+        {
+            attr = new AttributeMatcher { Name = name, Op = AttrOp.Exists };
+            return true;
+        }
+
+        // Operator must be exactly one of the five simple forms.
+        AttrOp op;
+        if (i + 1 < src.Length && src[i + 1] == '=')
+        {
+            op = src[i] switch
+            {
+                '^' => AttrOp.StartsWith,
+                '$' => AttrOp.EndsWith,
+                '*' => AttrOp.Contains,
+                _ => default,
+            };
+            if (op == default && src[i] != '=')
+            {
+                return false;
+            }
+
+            i += 2;
+        }
+        else if (src[i] == '=')
+        {
+            op = AttrOp.Equals;
+            i++;
+        }
+        else
+        {
+            return false; // not simple — typed predicate
+        }
+
+        SkipWhitespace(src, ref i);
+        if (i >= src.Length)
+        {
+            return false;
+        }
+
+        string value;
+        if (src[i] == '"' || src[i] == '\'')
+        {
+            try
+            {
+                value = ReadString(src, ref i);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+        }
+        else if (IsIdentStart(src[i]))
+        {
+            value = ReadIdent(src, ref i);
+        }
+        else
+        {
+            return false;
+        }
+
+        SkipWhitespace(src, ref i);
+        if (i < src.Length)
+        {
+            return false; // trailing tokens → typed predicate
+        }
+
+        attr = new AttributeMatcher { Name = name, Op = op, Value = value };
+        return true;
     }
 
     private static PseudoEntry ParsePseudo(ReadOnlySpan<char> src, ref int i)
@@ -363,67 +533,6 @@ internal static class SelectorParser
         return new NthChildPseudo(a, b);
     }
 
-    private static AttributeMatcher ParseAttribute(ReadOnlySpan<char> src, ref int i)
-    {
-        SkipWhitespace(src, ref i);
-        if (i >= src.Length || !IsIdentStart(src[i]))
-        {
-            throw new FormatException($"Expected attribute name at position {i}.");
-        }
-
-        var name = ReadIdent(src, ref i);
-        SkipWhitespace(src, ref i);
-
-        if (i < src.Length && src[i] == ']')
-        {
-            i++;
-            return new AttributeMatcher { Name = name, Op = AttrOp.Exists };
-        }
-
-        AttrOp op;
-        if (i + 1 < src.Length && src[i + 1] == '=')
-        {
-            op = src[i] switch
-            {
-                '^' => AttrOp.StartsWith,
-                '$' => AttrOp.EndsWith,
-                '*' => AttrOp.Contains,
-                _ => throw new FormatException($"Invalid attribute operator at position {i}."),
-            };
-            i += 2;
-        }
-        else if (i < src.Length && src[i] == '=')
-        {
-            op = AttrOp.Equals;
-            i++;
-        }
-        else
-        {
-            throw new FormatException($"Expected attribute operator at position {i}.");
-        }
-
-        SkipWhitespace(src, ref i);
-
-        string value;
-        if (i < src.Length && (src[i] == '"' || src[i] == '\''))
-        {
-            value = ReadString(src, ref i);
-        }
-        else
-        {
-            value = ReadIdent(src, ref i);
-        }
-
-        SkipWhitespace(src, ref i);
-        if (i >= src.Length || src[i] != ']')
-        {
-            throw new FormatException($"Expected ']' at position {i}.");
-        }
-
-        i++;
-        return new AttributeMatcher { Name = name, Op = op, Value = value };
-    }
-
     private static Specificity ComputeSpecificity(List<CompoundSelector> parts)
     {
         var spec = Strata.Specificity.Zero;
@@ -434,7 +543,8 @@ internal static class SelectorParser
                 spec += new Specificity(1, 0, 0);
             }
 
-            spec += new Specificity(0, p.Classes.Length + p.Attributes.Length, 0);
+            // Typed predicates count like attribute selectors per spec §3.1 (B component).
+            spec += new Specificity(0, p.Classes.Length + p.Attributes.Length + p.TypedPredicates.Length, 0);
 
             if (p.Kind is not null)
             {

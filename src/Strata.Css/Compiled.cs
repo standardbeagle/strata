@@ -25,6 +25,7 @@ internal sealed class CompoundSelector
     public required string[] Classes { get; init; }
     public required AttributeMatcher[] Attributes { get; init; }
     public required PseudoEntry[] Pseudos { get; init; }
+    public required TypedPredicate[] TypedPredicates { get; init; }
 }
 
 internal sealed class AttributeMatcher
