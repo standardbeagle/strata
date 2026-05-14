@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\Strata.Core\Strata.Core.csproj" />
     <ProjectReference Include="..\..\src\Strata.Adapters.PSObject\Strata.Adapters.PSObject.csproj" />
     <ProjectReference Include="..\..\src\Strata.Adapters.JsonNode\Strata.Adapters.JsonNode.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Css\Strata.Css.csproj" />
   </ItemGroup>
 
   <ItemGroup>
