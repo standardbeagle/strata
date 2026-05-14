@@ -150,14 +150,48 @@ public sealed class CascadeTests
     }
 
     [Fact]
-    public void Update_throws_not_implemented_in_phase_0()
+    public void Update_throws_for_tree_changes_in_phase_2()
     {
         var (engine, _) = NewEngine();
         var root = new TestNode("Process");
         var ss = StylesheetOf();
         var result = engine.Compute(root, ss);
 
-        Action act = () => engine.Update(result, Array.Empty<TreeChange>());
+        Action act = () => engine.Update(result, new TreeChange[] { new TreeChange.ClassChanged(root, "x", true) });
         act.Should().Throw<NotImplementedException>();
+    }
+
+    [Fact]
+    public void Update_recomputes_when_stylesheet_changes()
+    {
+        var (engine, _) = NewEngine();
+        var root = new TestNode("Process");
+
+        var v1 = StylesheetOf(
+            (new KindSelector("Process", new Specificity(0, 0, 1)),
+             new[] { Decl("color", "red") }));
+
+        var v2 = StylesheetOf(
+            (new KindSelector("Process", new Specificity(0, 0, 1)),
+             new[] { Decl("color", "blue") }));
+
+        var first = engine.Compute(root, v1);
+        first.GetComputed<StringValue>(root, "color").Text.Should().Be("red");
+
+        var updated = engine.Update(first, Array.Empty<TreeChange>(), v2);
+        updated.GetComputed<StringValue>(root, "color").Text.Should().Be("blue");
+        updated.StylesheetVersion.Should().Be(v2.Version);
+    }
+
+    [Fact]
+    public void Update_returns_prior_when_stylesheet_unchanged()
+    {
+        var (engine, _) = NewEngine();
+        var root = new TestNode("Process");
+        var ss = StylesheetOf();
+        var result = engine.Compute(root, ss);
+
+        var updated = engine.Update(result, Array.Empty<TreeChange>(), ss);
+        updated.Should().BeSameAs(result);
     }
 }

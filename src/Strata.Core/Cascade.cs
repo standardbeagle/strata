@@ -33,7 +33,7 @@ public sealed class Cascade : ICascade
         var byNode = new Dictionary<ITreeNode, NodeResult>();
         ComputeRecursive(root, stylesheet, byNode);
 
-        return new CascadeResult(byNode, _properties, stylesheet.Version);
+        return new CascadeResult(root, byNode, _properties, stylesheet);
     }
 
     /// <inheritdoc/>
@@ -42,9 +42,31 @@ public sealed class Cascade : ICascade
         IReadOnlyList<TreeChange> treeChanges,
         IStylesheet? newStylesheet = null)
     {
-        throw new NotImplementedException(
-            "Incremental cascade lands in Phase 2 (full recompute) and Phase 5+ (selective). " +
-            "Until then, call Compute directly.");
+        ArgumentNullException.ThrowIfNull(prior);
+        ArgumentNullException.ThrowIfNull(treeChanges);
+
+        if (treeChanges.Count > 0)
+        {
+            throw new NotImplementedException(
+                "Tree-change-driven incremental update lands in Phase 5+. For now, call " +
+                "Compute on the new root.");
+        }
+
+        if (prior is not CascadeResult cr)
+        {
+            throw new ArgumentException(
+                "Update expects a CascadeResult produced by this Cascade instance.", nameof(prior));
+        }
+
+        // Hot reload: stylesheet changed (different reference or different version).
+        var nextSheet = newStylesheet ?? cr.SourceStylesheet;
+        if (ReferenceEquals(nextSheet, cr.SourceStylesheet)
+            && nextSheet.Version == cr.StylesheetVersion)
+        {
+            return prior;
+        }
+
+        return Compute(cr.Root, nextSheet);
     }
 
     private static void ComputeRecursive(
@@ -114,12 +136,18 @@ internal sealed class CascadeResult : ICascadeResult
     private readonly Dictionary<ITreeNode, NodeResult> _byNode;
     private readonly IPropertyRegistry _properties;
 
-    public CascadeResult(Dictionary<ITreeNode, NodeResult> byNode, IPropertyRegistry properties, int stylesheetVersion)
+    public CascadeResult(ITreeNode root, Dictionary<ITreeNode, NodeResult> byNode, IPropertyRegistry properties, IStylesheet stylesheet)
     {
+        Root = root;
         _byNode = byNode;
         _properties = properties;
-        StylesheetVersion = stylesheetVersion;
+        SourceStylesheet = stylesheet;
+        StylesheetVersion = stylesheet.Version;
     }
+
+    public ITreeNode Root { get; }
+
+    public IStylesheet SourceStylesheet { get; }
 
     public int StylesheetVersion { get; }
 
