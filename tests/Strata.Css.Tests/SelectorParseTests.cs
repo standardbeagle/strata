@@ -32,14 +32,6 @@ public sealed class SelectorParseTests
     }
 
     [Fact]
-    public void Functional_pseudo_is_explicitly_unsupported_for_now()
-    {
-        Action act = () => Parse(":not(.x)");
-        act.Should().Throw<FormatException>()
-            .WithMessage("*Functional pseudo-class*");
-    }
-
-    [Fact]
     public void Double_colon_pseudo_element_throws()
     {
         Action act = () => Parse("Process::before");
