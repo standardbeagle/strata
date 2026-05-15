@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework />
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <PackageId>Strata.Css</PackageId>
     <Description>CSS subset selector language for Strata. Type, id, class, attribute, combinators, and pseudo-classes per docs/02-spec.md §3.1.</Description>

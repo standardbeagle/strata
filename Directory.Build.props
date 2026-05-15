@@ -1,5 +1,8 @@
 <Project>
   <PropertyGroup>
+    <!-- Default TFM. Library csprojs override with TargetFrameworks=net8.0;net10.0
+         so PsBash.Cmdlets (PS 7.4=net8, PS 7.5/6=net10) can consume Strata in both
+         hosts. Tests and samples stay net10-only. -->
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>

@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework />
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <PackageId>Strata.Core</PackageId>
     <Description>Strata cascade engine: registries, primitives, specificity, rule index, inheritance. No third-party dependencies.</Description>
