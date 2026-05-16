@@ -11,20 +11,29 @@ namespace Strata.Adapters.PSObject;
 /// <see cref="System.Management.Automation.PSObject"/> compare equal — the adapter caches
 /// wrappers via <see cref="ConditionalWeakTable{TKey,TValue}"/>, so reference equality of
 /// the wrapper is sufficient.
+///
+/// <para>Kind / Id / Classes / PseudoStates are resolved by the
+/// <see cref="PsObjectTreeAdapter"/> using caller-configured selector delegates; the
+/// node is the immutable cached result of those resolutions.</para>
 /// </remarks>
 public sealed class PsObjectNode : ITreeNode
 {
     internal PsObjectNode(
         global::System.Management.Automation.PSObject source,
         PsObjectTreeAdapter adapter,
-        PsObjectNode? parent)
+        PsObjectNode? parent,
+        string kind,
+        string? id,
+        IReadOnlySet<string> classes,
+        IReadOnlySet<string> pseudoStates)
     {
         Source = source;
         _adapter = adapter;
         Parent = parent;
-
-        Kind = ResolveKind(source);
-        Id = ResolveId(source);
+        Kind = kind;
+        Id = id;
+        Classes = classes;
+        PseudoStates = pseudoStates;
     }
 
     private readonly PsObjectTreeAdapter _adapter;
@@ -39,10 +48,10 @@ public sealed class PsObjectNode : ITreeNode
     public string? Id { get; }
 
     /// <inheritdoc/>
-    public IReadOnlySet<string> Classes { get; } = EmptyStringSet.Instance;
+    public IReadOnlySet<string> Classes { get; }
 
     /// <inheritdoc/>
-    public IReadOnlySet<string> PseudoStates { get; } = EmptyStringSet.Instance;
+    public IReadOnlySet<string> PseudoStates { get; }
 
     /// <inheritdoc/>
     public ITreeNode? Parent { get; }
@@ -66,26 +75,6 @@ public sealed class PsObjectNode : ITreeNode
 
         value = prop.Value;
         return true;
-    }
-
-    private static string ResolveKind(global::System.Management.Automation.PSObject source)
-    {
-        // TypeNames[0] is the most-specific type. Strip namespace for CSS-like Kind.
-        var first = source.TypeNames.Count > 0 ? source.TypeNames[0] : null;
-        if (!string.IsNullOrEmpty(first))
-        {
-            var lastDot = first.LastIndexOf('.');
-            return lastDot >= 0 ? first[(lastDot + 1) ..] : first;
-        }
-
-        var t = source.BaseObject?.GetType();
-        return t?.Name ?? "PSObject";
-    }
-
-    private static string? ResolveId(global::System.Management.Automation.PSObject source)
-    {
-        var id = source.Properties["Id"]?.Value ?? source.Properties["Name"]?.Value;
-        return id?.ToString();
     }
 }
 
