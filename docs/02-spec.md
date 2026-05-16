@@ -451,7 +451,9 @@ Whitespace between tokens is insignificant. Property names are case-sensitive (l
 
 Not supported in v1. Reserved for future media-query equivalent.
 
-## 6. Behaviors (Phase 5+)
+## 6. Interactions (Phase 5+)
+
+**Superseded — see `docs/05-interaction-redesign.md` for the canonical spec.** The sections below describe the original imperative-lifecycle design; the replacement uses a `command:` property and selector-bound `IObservable<HostEvent>` subscriptions with command-name → handler dispatch. The original text is retained for context only.
 
 ### 6.1 Behavior contract
 

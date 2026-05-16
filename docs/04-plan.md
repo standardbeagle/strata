@@ -162,7 +162,11 @@ Resize the terminal, the dashboard reflows correctly. Grid lines align. Absolute
 - **Yoga grid support is recent (3.2+).** Verify Yoga.Net's port covers grid completely. If not, fall back to flex-only for v1.0 and document grid as v1.1.
 - **Cell rounding.** Yoga returns float rects. We need consistent integer rounding to avoid sub-cell drift.
 
-## Phase 5 — Behaviors (~1–2 weeks)
+## Phase 5 — Interactions (~1.5 weeks)
+
+**Combined with the original Phase 6 (Commands + input) per `docs/05-interaction-redesign.md`.** Phase 5 now ships the `command:` property, `IInputSource`, `ICommandRegistry`, the subscription-diff dispatcher, and the sample handlers. The original Phase 6 section below is retained only as background. Skip to Phase 7 once Phase 5 lands.
+
+## Phase 5.legacy — Behaviors (deprecated, ~1–2 weeks)
 
 ### Goal
 
@@ -326,7 +330,7 @@ This section is to be appended to as decisions are locked down:
 - *(Phase -1)* Repository: standardbeagle/strata, separate from standardbeagle-tools
 - *(Phase 0)* `ITreeNode.Children` type: TBD (`IEnumerable` vs `IReadOnlyList`)
 - *(Phase 1)* Dynamic.Core AOT status: TBD; fallback parser ready
-- *(Phase 5)* `behavior` property cascade semantics: additive (deviates from CSS)
+- *(Phase 5)* Interaction model: selector-bound `IObservable<HostEvent>` subscriptions, **not** `IBehavior.Attach/Detach`. `command:` property carries `(command-name, event-name)` pairs; additive cascade semantics (same deviation from CSS as the original `behavior:` design, but narrower contract). Replaces FR-12 + §6 of spec/tech-design. See `docs/05-interaction-redesign.md`.
 - *(Phase 7)* Reconciliation strategy: full diff if feasible, else tear-down-recreate
 
 ## What this plan does not promise

@@ -355,7 +355,11 @@ Removed nodes need explicit cleanup (`view.Dispose()` and removal from parent). 
 
 This is the highest-risk part of the design and is explicitly Phase 7. If reconciliation proves too complex, a fallback option is tear-down-and-recreate on each cascade, accepting lost focus state.
 
-## 6. Behavior lifecycle
+## 6. Interaction lifecycle
+
+**Superseded — see `docs/05-interaction-redesign.md` for the canonical algorithm.** The interaction layer diffs the active subscription set `(node, command, event)` against the prior cascade. No `BehaviorHost`, no DI keyed services. The text below describes the original design; retained for context.
+
+### 6.legacy Behavior host (deprecated)
 
 ```csharp
 internal sealed class BehaviorHost
