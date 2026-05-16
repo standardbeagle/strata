@@ -117,9 +117,9 @@ Selector languages with wildcards or predicates (JSONPath especially) MUST surfa
 
 Pseudo-states like `:focused`, `:selected`, `:hovered`, `:expanded` MUST be representable per-node and toggleable at runtime. Toggling a pseudo-state MUST trigger only re-cascade of selectors that reference it.
 
-### FR-12 — Behavior attachment (Phase 5+)
+### FR-12 — Selector-bound interaction (Phase 5+)
 
-A `behavior` property MUST be supported that names one or more behaviors to attach to matching nodes. Behaviors have a documented `Attach`/`Detach` lifecycle. When the cascade changes the set of behaviors attached to a node, the engine MUST issue the appropriate Attach/Detach calls.
+**Superseded by `docs/05-interaction-redesign.md`.** The original FR-12 mandated an imperative `IBehavior.Attach`/`Detach` lifecycle keyed off a `behavior:` property. The redesign keeps the declarative axis (now a `command:` property) but replaces the lifecycle with selector-filtered `IObservable<HostEvent>` subscriptions and command-name → handler dispatch. The engine MUST diff the active subscription set per cascade run and add/remove subscriptions accordingly; user-visible attach/detach callbacks are removed.
 
 ### FR-13 — Diagnostics
 

@@ -22,6 +22,7 @@ Pre-alpha. Phase -1 scaffold. See [`docs/04-plan.md`](docs/04-plan.md) for roadm
 - [Specification](docs/02-spec.md)
 - [Technical design](docs/03-tech-design.md)
 - [Plan](docs/04-plan.md)
+- [Interaction redesign](docs/05-interaction-redesign.md) — supersedes the Phase 5/6 behavior model
 
 ## Target framework
 
