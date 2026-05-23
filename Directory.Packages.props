@@ -30,7 +30,14 @@
 
     <!-- Projections (Phase 3/7) -->
     <PackageVersion Include="Spectre.Console" Version="0.49.1" />
-    <PackageVersion Include="Terminal.Gui" Version="2.0.0-prealpha.4" />
+    <!-- 2.0.0-prealpha.4 (planned pin) is not published on nuget.org; .216 is the lowest
+         restorable v2 prealpha and is the tested build for the Phase 7 projection. -->
+    <PackageVersion Include="Terminal.Gui" Version="2.0.0-prealpha.216" />
+
+    <!-- Transitive security pin: Terminal.Gui v2 pulls System.Text.Json 8.0.4, which carries
+         advisory GHSA-8g4q-xg66-9fp4. Pin up to the patched 8.0.5 (still inside Terminal.Gui's
+         [8.0.4, 9.0.0) range). CentralPackageTransitivePinningEnabled applies it transitively. -->
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
 
     <!-- Adapters -->
     <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />

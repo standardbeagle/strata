@@ -331,7 +331,10 @@ This section is to be appended to as decisions are locked down:
 - *(Phase 0)* `ITreeNode.Children` type: TBD (`IEnumerable` vs `IReadOnlyList`)
 - *(Phase 1)* Dynamic.Core AOT status: TBD; fallback parser ready
 - *(Phase 5)* Interaction model: selector-bound `IObservable<HostEvent>` subscriptions, **not** `IBehavior.Attach/Detach`. `command:` property carries `(command-name, event-name)` pairs; additive cascade semantics (same deviation from CSS as the original `behavior:` design, but narrower contract). Replaces FR-12 + §6 of spec/tech-design. See `docs/05-interaction-redesign.md`.
-- *(Phase 7)* Reconciliation strategy: full diff if feasible, else tear-down-recreate
+- *(Phase 7)* Reconciliation strategy: **full diff — shipped.** The tear-down-recreate fallback was authorised but not needed; Terminal.Gui v2 `View` exposes mutable `Text`/`ColorScheme` and an add/remove `Subviews` collection, so in-place diff reconciliation is clean. See `docs/06-stateful-projection.md` §3.
+- *(Phase 7)* Terminal.Gui pin: `2.0.0-prealpha.216` (the planned `.4` is not published on nuget.org). Transitive `System.Text.Json` pinned to `8.0.5` for advisory GHSA-8g4q-xg66-9fp4.
+- *(Phase 7)* AOT exception: `Strata.Render.TerminalGui` opts out of AOT/trim (Terminal.Gui v2 deps are not trim-clean); the rest of the engine stays AOT-compatible.
+- *(Phase 7)* Live input: `TerminalGuiInputSource : IInputSource` supplies the live terminal raw-mode input layer the Phase 6 re-scope deferred; it feeds the existing interaction dispatcher unchanged.
 
 ## What this plan does not promise
 

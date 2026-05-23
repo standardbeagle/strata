@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!-- No PublishAot here: Terminal.Gui v2 is not AOT/trim clean (see
+         docs/06-stateful-projection.md). The Spectre demo carries the AOT smoke target. -->
+    <IsAotCompatible>false</IsAotCompatible>
+    <IsTrimmable>false</IsTrimmable>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>false</EnableAotAnalyzer>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="show-processes.css" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Strata.Core\Strata.Core.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Css\Strata.Css.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Properties.Styling\Strata.Properties.Styling.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Interaction\Strata.Interaction.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Render.TerminalGui\Strata.Render.TerminalGui.csproj" />
+  </ItemGroup>
+</Project>

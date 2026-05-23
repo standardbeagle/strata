@@ -1,9 +1,9 @@
 {
   "status": "running",
-  "iterations": 3,
-  "spawns": 3,
+  "iterations": 4,
+  "spawns": 4,
   "started_at": "2026-05-23T07:04:00Z",
-  "last_iteration_at": "2026-05-23T07:55:00Z",
+  "last_iteration_at": "2026-05-23T08:05:00Z",
   "last_subagent": "dartai-task-executor",
   "loop_task_id": "cQRLqs99S3kp",
   "dartboard": "Personal/strata",
@@ -61,6 +61,23 @@
       "fix_task_created": false,
       "fix_task_id": null,
       "notes": "No spec conflict found: re-scoped task aligns with docs/05-interaction-redesign.md (FocusController endorsed in Open-question Q2; pseudo-states stay attribute-style toggles per line 41). Design note: ITreeNode.PseudoStates is read-only ('toggled by adapters at runtime'), so controllers drive an IPseudoStateMutable contract + emit the existing TreeChange.PseudoStateChanged record; no Strata.Core change. Entry-point uses full Cascade.Compute for re-cascade because Cascade.Update throws NotImplementedException for any tree change (deferred to a later phase)."
+    },
+    {
+      "task_id": "pGHhkzASYf1m",
+      "iteration": 4,
+      "status": "completed",
+      "started_at": "2026-05-23T07:56:00Z",
+      "completed_at": "2026-05-23T08:05:00Z",
+      "phase_completed": "phase-9",
+      "failed_phase": null,
+      "files_changed": 10,
+      "tests_added": 22,
+      "plan_adjustments": 3,
+      "completion_summary": "Phase 7 Terminal.Gui v2 projection. New Strata.Render.TerminalGui package: TerminalGuiProjection : IProjection<View> implements the tech-design 5.2 React-style diff reconciliation (node->View map, in-place Update of Text/ColorScheme, add/Dispose-on-remove). MID-PHASE DECISION: diff reconciliation taken, tear-down-recreate fallback NOT needed - View exposes mutable Text/ColorScheme + add/remove Subviews, so in-place update is clean (recorded verbatim in docs/06 + plan decision log). TerminalGuiInputSource : IInputSource is the live terminal raw-mode layer Phase 6 deferred - maps TG v2 Key -> HostEvent.Key event-name DSL (key.j, key.ArrowDown, key.ctrl+c, caps-folded) and feeds the EXISTING InteractionHost/FocusController unchanged (end-to-end test: live Key drives focus). Show-Processes sample (samples/Strata.Demo.TerminalGui) shares the engine with Format-Styled: show-processes.css reuses procs.css Process rules, adds only :focused + command: bindings; headless branch builds the view tree for CI. docs/06-stateful-projection.md authoring guide added. 22 new tests (projection mapping + reconciliation + input mapping/dispatch, headless - live terminal correctly excluded), full solution 230 tests green, clean net8.0;net10.0 Release build (0 warnings, warnings-as-errors), Spectre AOT publish still native-clean.",
+      "failure_reason": null,
+      "fix_task_created": false,
+      "fix_task_id": null,
+      "notes": "Plan adjustments: (1) Terminal.Gui pin 2.0.0-prealpha.4 is NOT published on nuget.org - repinned to 2.0.0-prealpha.216 (lowest restorable v2 prealpha, tested). (2) TG transitive System.Text.Json 8.0.4 carries advisory GHSA-8g4q-xg66-9fp4 + warnings-as-errors blocked restore - added central transitive pin to patched 8.0.5 (inside TG's [8.0.4,9.0.0) range). (3) AOT exception: Strata.Render.TerminalGui opts out of AOT/trim (TG deps System.IO.Abstractions + System.Text.Json reflection not trim-clean) - rest of engine stays AOT-compatible, verified by Spectre demo native publish. All documented in docs/06 + plan decision log."
     }
   ]
 }

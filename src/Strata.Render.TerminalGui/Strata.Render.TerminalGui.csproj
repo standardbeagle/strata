@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework />
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <PackageId>Strata.Render.TerminalGui</PackageId>
+    <Description>Terminal.Gui v2 projection for Strata: reconciles a styled tree into a full-screen View tree, sharing the cascade engine with the Spectre projection.</Description>
+
+    <!-- AOT/trim exception: Terminal.Gui v2 (prealpha) pulls in System.IO.Abstractions and
+         System.Text.Json reflection paths that are not trim/AOT clean. The rest of the Strata
+         engine (Core, Css, Layout.Yoga, Render.Spectre) stays AOT-compatible; this projection
+         package opts out, as the acceptance criteria allows. Documented in
+         docs/06-stateful-projection.md. -->
+    <IsAotCompatible>false</IsAotCompatible>
+    <IsTrimmable>false</IsTrimmable>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>false</EnableAotAnalyzer>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
+    <ProjectReference Include="..\Strata.Core\Strata.Core.csproj" />
+    <ProjectReference Include="..\Strata.Properties.Styling\Strata.Properties.Styling.csproj" />
+    <ProjectReference Include="..\Strata.Interaction\Strata.Interaction.csproj" />
+    <PackageReference Include="Terminal.Gui" />
+  </ItemGroup>
+</Project>

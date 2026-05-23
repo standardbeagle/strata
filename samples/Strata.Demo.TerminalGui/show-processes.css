@@ -1,0 +1,37 @@
+/* Show-Processes stylesheet — the full-screen counterpart to procs.css.
+   The SAME selector/cascade engine drives both Format-Styled (inline, Spectre) and
+   Show-Processes (full-screen, Terminal.Gui). The only full-screen-specific addition is the
+   :focused rule and the command: bindings that move focus from live keystrokes. */
+
+Process {
+    color: white;
+}
+
+Process[Status="running"] {
+    color: brightgreen;
+}
+
+Process.high-cpu {
+    color: brightyellow;
+    font-weight: bold;
+}
+
+Process.zombie {
+    color: gray;
+    font-style: italic;
+}
+
+/* Full-screen focus cursor: the focused row is re-styled on each re-cascade. */
+Process:focused {
+    color: black;
+    background: brightcyan;
+}
+
+/* Live navigation: j/k and the arrow keys move focus. The command: property is additive, so
+   binding it on the container applies to the whole list. */
+Table {
+    command: "navigate-down" when "key.j";
+    command: "navigate-up" when "key.k";
+    command: "navigate-down" when "key.ArrowDown";
+    command: "navigate-up" when "key.ArrowUp";
+}
