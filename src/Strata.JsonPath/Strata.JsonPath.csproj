@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework />
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <PackageId>Strata.JsonPath</PackageId>
+    <Description>JSONPath (RFC 9535) selector language for Strata, backed by JsonPath.Net. Proves pluggable selector languages over the same cascade engine. See docs/04-plan.md §Phase 9.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="JsonPath.Net" />
+  </ItemGroup>
+</Project>

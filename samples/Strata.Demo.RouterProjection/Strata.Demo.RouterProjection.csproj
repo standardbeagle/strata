@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CA1303</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Strata.Abstractions\Strata.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\Strata.JsonPath\Strata.JsonPath.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Adapters.JsonNode\Strata.Adapters.JsonNode.csproj" />
+  </ItemGroup>
+</Project>

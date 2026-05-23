@@ -1,9 +1,9 @@
 {
   "status": "running",
-  "iterations": 4,
-  "spawns": 4,
+  "iterations": 5,
+  "spawns": 5,
   "started_at": "2026-05-23T07:04:00Z",
-  "last_iteration_at": "2026-05-23T08:05:00Z",
+  "last_iteration_at": "2026-05-23T08:20:00Z",
   "last_subagent": "dartai-task-executor",
   "loop_task_id": "cQRLqs99S3kp",
   "dartboard": "Personal/strata",
@@ -78,6 +78,23 @@
       "fix_task_created": false,
       "fix_task_id": null,
       "notes": "Plan adjustments: (1) Terminal.Gui pin 2.0.0-prealpha.4 is NOT published on nuget.org - repinned to 2.0.0-prealpha.216 (lowest restorable v2 prealpha, tested). (2) TG transitive System.Text.Json 8.0.4 carries advisory GHSA-8g4q-xg66-9fp4 + warnings-as-errors blocked restore - added central transitive pin to patched 8.0.5 (inside TG's [8.0.4,9.0.0) range). (3) AOT exception: Strata.Render.TerminalGui opts out of AOT/trim (TG deps System.IO.Abstractions + System.Text.Json reflection not trim-clean) - rest of engine stays AOT-compatible, verified by Spectre demo native publish. All documented in docs/06 + plan decision log."
+    },
+    {
+      "task_id": "5NfcKFetEBJ8",
+      "iteration": 5,
+      "status": "completed",
+      "started_at": "2026-05-23T08:11:00Z",
+      "completed_at": "2026-05-23T08:20:00Z",
+      "phase_completed": "phase-9",
+      "failed_phase": null,
+      "files_changed": 10,
+      "tests_added": 16,
+      "plan_adjustments": 1,
+      "completion_summary": "Phase 9 JSONPath selector language. New Strata.JsonPath package proves the ISelectorLanguage/ISelector contracts (src/Strata.Abstractions/Selector.cs) are language-agnostic - second selector language for the same cascade engine, no Strata.Core change. JsonPathSelectorLanguage (Name=jsonpath, Parse throws FormatException on invalid path) + JsonPathSelector : ISelector over ITreeNode, backed by JsonPath.Net 1.1.6 (RFC 9535). BRIDGE DECISION: Strata.JsonPath depends only on Strata.Abstractions + JsonPath.Net - NOT on Strata.Adapters.JsonNode; it evaluates against the JsonNode exposed by ITreeNode.Underlying and maps result nodes back to ITreeNode by reference identity. Captures: 'location' (RFC 9535 normalized path) + addressable name/index segments ($0,$1,...) from wildcards/slices/filters. JSONPath specificity mapping (resolves tech-design §12 Q1, arbitrary-by-design): A=name+index, B=filter, C=wildcard+slice; documented edge cases for mixing CSS+JSONPath (docs/07-jsonpath-selectors.md §5). Router-projection sample (samples/Strata.Demo.RouterProjection): RouterProjection maps state-tree slices to HandlerDescriptor records via a JSONPath routing table - runs end-to-end. SUCCESS CRITERION VERIFIED: $.users[?@.role == 'admin'] matches the same logical ITreeNode refs as CSS user[role=\"admin\"] (.user class maps to Kind via $type; equivalence asserted on identical refs) - RED-verified (breaking the bridge fails 5 tests). 16 new tests, full solution 246 tests green, clean net8.0;net10.0 Release build (0 warnings, warnings-as-errors). AOT/trim: JsonPath.Net 1.1.6 is trim/AOT-clean - native AOT publish of the JSONPath consumer path exits 0 with NO IL2xxx/IL3xxx warnings, so NO AOT exception needed (unlike Terminal.Gui).",
+      "failure_reason": null,
+      "fix_task_created": false,
+      "fix_task_id": null,
+      "notes": "RFC 9535 vs legacy syntax: the plan's filter example uses the legacy Goessner form $.users[?(@.role == 'admin')] (with parens); RFC 9535 drops them: $.users[?@.role == 'admin']. JsonPath.Net 1.1.6 ACCEPTS BOTH forms and produces identical results (verified by Legacy_goessner_filter_syntax_is_tolerated_and_equivalent test), so the plan's example parses unchanged - no syntax shim needed. Docs/tests/sample prefer the RFC form. CONFLICT-AWARENESS note from dispatch resolved: no silent rationalization - the deviation is moot because the library is permissive; documented verbatim in docs/07 §6 + plan decision log."
     }
   ]
 }

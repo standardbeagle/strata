@@ -335,6 +335,10 @@ This section is to be appended to as decisions are locked down:
 - *(Phase 7)* Terminal.Gui pin: `2.0.0-prealpha.216` (the planned `.4` is not published on nuget.org). Transitive `System.Text.Json` pinned to `8.0.5` for advisory GHSA-8g4q-xg66-9fp4.
 - *(Phase 7)* AOT exception: `Strata.Render.TerminalGui` opts out of AOT/trim (Terminal.Gui v2 deps are not trim-clean); the rest of the engine stays AOT-compatible.
 - *(Phase 7)* Live input: `TerminalGuiInputSource : IInputSource` supplies the live terminal raw-mode input layer the Phase 6 re-scope deferred; it feeds the existing interaction dispatcher unchanged.
+- *(Phase 9)* JSONPath bridge: `Strata.JsonPath` depends only on `Strata.Abstractions` + `JsonPath.Net` (RFC 9535). `JsonPathSelector` evaluates against the `JsonNode` exposed by `ITreeNode.Underlying` and maps result nodes back to `ITreeNode` by reference identity — **no dependency on `Strata.Adapters.JsonNode`**; the `Underlying` contract member is the only bridge. See `docs/07-jsonpath-selectors.md`.
+- *(Phase 9)* JSONPath specificity mapping (resolves tech-design §12 Q1, **arbitrary by design**): `A` = name + index selectors, `B` = filter selectors, `C` = wildcards + slices. Documented edge cases when mixing CSS and JSONPath in one stylesheet (the two languages compute specificity on different axes). See `docs/07-jsonpath-selectors.md` §Specificity.
+- *(Phase 9)* RFC 9535 vs legacy filter syntax: JsonPath.Net 1.1.6 **accepts both** `$.users[?@.role == 'admin']` (RFC 9535) and the legacy Goessner `$.users[?(@.role == 'admin')]` form, producing identical results. Docs/tests prefer the RFC form; the plan's `?(...)` example still parses. No syntax shim needed.
+- *(Phase 9)* AOT/trim: `JsonPath.Net` 1.1.6 is trim/AOT-clean; `Strata.JsonPath` keeps the default `IsAotCompatible`/`IsTrimmable` posture (0 analyzer warnings under warnings-as-errors). **No AOT exception** required, unlike `Strata.Render.TerminalGui`.
 
 ## What this plan does not promise
 

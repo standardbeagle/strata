@@ -1,17 +1,3 @@
 {
-  "claims": {
-    "5NfcKFetEBJ8": {
-      "runner_instance_id": "DESKTOP-NPIOPS6-claude",
-      "runner_email": "andybrummer@standardbeagle.com",
-      "claimed_at": "2026-05-23T08:12:00Z",
-      "agent_id": "dartai-loop-strata",
-      "parent_loop_id": "cQRLqs99S3kp",
-      "purpose": "Phase 9 JSONPath selector language (satisfies v1.0 either/or)",
-      "source_event": {
-        "loop_id": "cQRLqs99S3kp",
-        "task_id": "5NfcKFetEBJ8",
-        "conversation_id": null
-      }
-    }
-  }
+  "claims": {}
 }
