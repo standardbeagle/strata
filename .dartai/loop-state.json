@@ -1,5 +1,6 @@
 {
-  "status": "running",
+  "status": "complete",
+  "stop_reason": "v1.0 either/or satisfied (Phase 9); Phase 8 deferred by operator",
   "iterations": 5,
   "spawns": 5,
   "started_at": "2026-05-23T07:04:00Z",
