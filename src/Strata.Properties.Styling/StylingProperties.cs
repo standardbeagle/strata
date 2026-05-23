@@ -31,6 +31,9 @@ public static class StylingProperties
     public const string TextDecoration = "text-decoration";
 
     /// <inheritdoc cref="Color"/>
+    public const string TextAlign = "text-align";
+
+    /// <inheritdoc cref="Color"/>
     public const string Wrap = "wrap";
 
     /// <inheritdoc cref="Color"/>
@@ -42,6 +45,7 @@ public static class StylingProperties
     /// <inheritdoc cref="Color"/>
     public const string Margin = "margin";
 
+    private static readonly string[] TextAlignValues = ["left", "right", "center"];
     private static readonly string[] FontWeightValues = ["normal", "bold"];
     private static readonly string[] FontStyleValues = ["normal", "italic"];
     private static readonly string[] TextDecorationValues = ["none", "underline", "strikethrough"];
@@ -64,6 +68,11 @@ public static class StylingProperties
 
         registry.Register(new EnumPropertyDescriptor(
             TextDecoration, initial: "none", inherits: true, allowedValues: TextDecorationValues));
+
+        // text-align drives grid column alignment in the Spectre projection (right-align
+        // numeric columns). Non-inherited: alignment is per box, not inherited from a parent.
+        registry.Register(new EnumPropertyDescriptor(
+            TextAlign, initial: "left", inherits: false, allowedValues: TextAlignValues));
 
         registry.Register(new EnumPropertyDescriptor(
             Wrap, initial: "wrap", inherits: true, allowedValues: WrapValues));

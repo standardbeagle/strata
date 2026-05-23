@@ -100,9 +100,23 @@ public sealed class SpectreProjection : IProjection<IRenderable>
     {
         var columns = GridColumnCount(node, cascade);
         var grid = new Grid();
-        for (var i = 0; i < columns; i++)
+        for (var c = 0; c < columns; c++)
         {
-            grid.AddColumn();
+            // Per-column alignment from the column's first cell's text-align (children fill
+            // row-major, so children[c] is the first cell in column c). Lets a stylesheet
+            // right-align numeric columns: cells tagged text-align:right -> Justify.Right.
+            var column = new GridColumn();
+            if (c < children.Count)
+            {
+                column.Alignment = cascade.GetComputed<EnumValue>(children[c], StylingProperties.TextAlign).Value switch
+                {
+                    "right" => Justify.Right,
+                    "center" => Justify.Center,
+                    _ => Justify.Left,
+                };
+            }
+
+            grid.AddColumn(column);
         }
 
         for (var i = 0; i < children.Count; i += columns)
