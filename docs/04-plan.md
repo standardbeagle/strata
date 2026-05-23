@@ -242,28 +242,13 @@ The same stylesheet (possibly with a context-distinguishing pseudo-class like `:
 
 If reconciliation isn't working cleanly by mid-phase, switch to tear-down-recreate with focus-restoration heuristic.
 
-## Phase 8 — Second tree adapter (Bifrost) (~1–2 weeks)
-
-### Goal
-
-Validate the abstraction by porting Bifrost's CSS-style rule engine to Strata.
-
-### Deliverables
-
-- `Strata.Adapters.Schema` (or similar) wrapping Bifrost's schema AST
-- Bifrost's existing rules ported to Strata stylesheets
-- A `GraphqlResolverProjection` that emits resolver descriptors
-- Bifrost test suite passing against the new engine
-- Public blog post / writeup on the pattern (this is a marketing moment — Bifrost-on-Strata is a strong story)
-
-### Success criterion
-
-Bifrost's existing tests pass with Strata as its rule engine. No regressions. Bonus: rules are noticeably more expressive thanks to `:has`, `:not`, and predicates.
-
-### Risks
-
-- **Bifrost rule semantics may not be 1:1 with CSS cascade.** Identify deviations early and either extend Strata (preferred) or transform rules on import (fallback).
-- **Backwards compatibility for Bifrost users.** Old rule format may need a compatibility shim.
+> **Phase 8 (Bifrost adapter) removed (2026-05-23).** The Bifrost port was a
+> validation-only track — proof the engine generalizes beyond PSObject. Strata's
+> primary value is flexible styling + interaction for PowerShell cmdlets
+> (PSObject adapter + Spectre/Terminal.Gui projections + interaction layer,
+> Phases 3–7). Phase 9 (JSONPath) already proves selector/tree-agnosticism, so
+> the Bifrost cross-repo port + marketing write-up no longer carries its weight.
+> Removed, not deferred. See decision log.
 
 ## Phase 9 — JSONPath selector language (~1 week)
 
@@ -292,14 +277,14 @@ A standalone TypeScript port of `Strata.Abstractions`, `Strata.Core`, `Strata.Js
 
 ## v1.0 release criteria
 
-By end of Phase 7, plus either Phase 8 (Bifrost) or Phase 9 (JSONPath):
+By end of Phase 7, plus Phase 9 (JSONPath):
 
 - All Phase 0–7 deliverables shipping
 - Public NuGet packages versioned 1.0.0
 - Docs site with quickstart, selector reference, three end-to-end tutorials
 - AOT verification passing
 - Benchmark targets met (per Tech Design §10.4)
-- At least one external consumer beyond ps-bash and Bifrost
+- At least one external consumer beyond ps-bash
 
 ## Aggregate timeline
 
@@ -314,8 +299,8 @@ By end of Phase 7, plus either Phase 8 (Bifrost) or Phase 9 (JSONPath):
 | 5 | 1.5 | 10.1 |
 | 6 | 1 | 11.1 |
 | 7 | 2 | 13.1 |
-| 8 *or* 9 | 1.5 | 14.6 |
-| 1.0 release polish | 1 | **15.6** |
+| 9 | 1 | 14.1 |
+| 1.0 release polish | 1 | **15.1** |
 
 About **16 calendar weeks at a sane pace** to v1.0, with explicit slack via the Phase 3 dogfood window where most of the property-surface refinement happens organically rather than under deadline pressure.
 
@@ -331,6 +316,7 @@ This section is to be appended to as decisions are locked down:
 - *(Phase 0)* `ITreeNode.Children` type: TBD (`IEnumerable` vs `IReadOnlyList`)
 - *(Phase 1)* Dynamic.Core AOT status: TBD; fallback parser ready
 - *(Phase 5)* Interaction model: selector-bound `IObservable<HostEvent>` subscriptions, **not** `IBehavior.Attach/Detach`. `command:` property carries `(command-name, event-name)` pairs; additive cascade semantics (same deviation from CSS as the original `behavior:` design, but narrower contract). Replaces FR-12 + §6 of spec/tech-design. See `docs/05-interaction-redesign.md`.
+- *(Phase 8 removed, 2026-05-23)* Bifrost adapter dropped. Was validation-only (prove engine generalizes beyond PSObject); Phase 9 (JSONPath) already proves selector/tree-agnosticism. Primary product value = styling + interaction for PowerShell cmdlets (Phases 3–7), which does not depend on a second tree adapter. Cross-repo BifrostQL port + marketing write-up not worth the cost. v1.0 validation track is now Phase 9 alone.
 - *(Phase 7)* Reconciliation strategy: **full diff — shipped.** The tear-down-recreate fallback was authorised but not needed; Terminal.Gui v2 `View` exposes mutable `Text`/`ColorScheme` and an add/remove `Subviews` collection, so in-place diff reconciliation is clean. See `docs/06-stateful-projection.md` §3.
 - *(Phase 7)* Terminal.Gui pin: `2.0.0-prealpha.216` (the planned `.4` is not published on nuget.org). Transitive `System.Text.Json` pinned to `8.0.5` for advisory GHSA-8g4q-xg66-9fp4.
 - *(Phase 7)* AOT exception: `Strata.Render.TerminalGui` opts out of AOT/trim (Terminal.Gui v2 deps are not trim-clean); the rest of the engine stays AOT-compatible.
