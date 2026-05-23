@@ -1,40 +1,47 @@
-# Active plan — Phase 4 Yoga layout (task CbtIu8VdrXE2, iteration 1)
+# Active plan — Phase 5 Interactions (task 4SrLff53j5D6, iteration 2)
 
-## Risk resolved at intake
-- `Directory.Packages.props` pinned `Facebook.Yoga 2.0.1` which does NOT exist on nuget.org (max 1.5.0-pre1).
-- Correct package is `Yoga.Net 3.2.3` by Chenrensong (matches plan's "Yoga.Net / chenrensong").
-- Verified: pure-managed (no native runtimes), multi-targets net8.0/net9.0/net10.0 (matches our TFMs), `Display.Grid` present (grid 3.2+ confirmed), namespace is `Facebook.Yoga`.
-- Smoke-verified flex split (row, flex-grow:1 each, 30 wide → 15/15) and grid template columns compute.
-- API gotcha: `CalculateLayout` clones children (CoW). Read rects by index-walking from root (`root.GetChild(i)`), not via original `Node` refs. So `YogaLayoutPass` zips ITreeNode children with `parentYoga.GetChild(i)` in build order.
+## Intent conflict resolved at intake (push-back, not blind execution)
+- Dart task body "Phase 5 — Behaviors" (created 2026-05-13) describes the imperative
+  IBehavior / IBehaviorContext / BehaviorHost design with MS.Ext.DI keyed-service resolution.
+- That design is EXPLICITLY SUPERSEDED by `docs/05-interaction-redesign.md` (dated 2026-05-16,
+  "supersedes 04-plan.md Phase 5 + Phase 6"), reinforced by supersession banners in
+  `docs/04-plan.md` §Phase 5 ("Phase 5 now ships the `command:` property, IInputSource,
+  ICommandRegistry, the subscription-diff dispatcher"), `docs/03-tech-design.md` §6,
+  `docs/02-spec.md` §6, `docs/01-requirements.md` FR-12, the decision log, and recent commits
+  (`replace Phase 5 behavior model with selector-bound observables`).
+- DECISION: implement the REDESIGNED selector-bound interaction scope (the actual project goal
+  the active plan points to), NOT the deprecated behavior-lifecycle spec. Implementing the dead
+  design would violate the locked decision and burn the AOT trim budget the redesign exists to
+  save. Karpathy goal-driven + push-back.
+- Recommend the Dart task title/body be updated to "Phase 5 — Interactions" (noted in completion
+  comment; the task body is stale relative to the docs).
 
-## Plan adjustment 1 (Phase 4 risk realized): Yoga.Net grid is non-functional
-- Smoke-tested Yoga.Net 3.2.3 grid extensively: `Display.Grid` + grid templates + explicit
-  GridColumnStart/RowStart placement ALL ignored by CalculateLayout. Children land at (0,0)
-  with full container width and zero height. The grid API surface exists but the layout
-  algorithm does not implement it in this port.
-- docs/04-plan.md §Phase 4 risk explicitly authorizes the fallback:
-  "If not, fall back to flex-only for v1.0 and document grid as v1.1."
-- DECISION: implement `display: grid` + `grid-template-columns/rows` via flexbox emulation in
-  YogaLayoutPass (wrap children into flex rows of N columns; column track sizes drive cell
-  widths, row track sizes drive row heights). This delivers a REAL multi-column terminal
-  layout (what the dashboard demo + acceptance "multi-column grid" need) without depending on
-  the broken native grid. Document the substitution in code + tech-design. Real flex grid is
-  still v1.1 once the port matures. Grid placement test asserts the emulated offsets.
+## What was built (Strata.Interaction package)
+1. `command:` property — list-valued, ADDITIVE cascade semantics (documented deviation from CSS
+   override; canonical in redesign §2.3 / tech-design §12 Q2). Syntax `command: "name" when "event"`,
+   comma-separated items = multiple bindings. `CommandValue` / `CommandPropertyDescriptor`.
+2. `HostEvent` (Key/Focus/Tick/Custom records) + `IInputSource`; `InputSource` backed by a
+   System.Reactive `Subject<HostEvent>`.
+3. `ICommandRegistry` / `CommandRegistry` — command-name → handler delegate, single registration
+   per name (second-to-register throws clearly). Replaces DI keyed services. No reflection.
+4. `InteractionHost` — the subscription-diff dispatcher (replaces Attach/Detach). Per cascade run,
+   collects the additive `(command, event)` set per node from `GetMatchedRules` (NOT the single
+   cascade winner), diffs keyed by `(node, command, event)`: appear → subscribe, disappear →
+   dispose, present-in-both → untouched (identity stable across re-cascade, no re-fire).
+   Detach-before-re-attach ordering: disposes happen before any later reconcile's adds.
+5. Sample handlers (redesign equivalents of the old sample behaviors): navigate-down/up keymap
+   (Highlight role), kill-with-confirmation (KillProcessConfirm), render-sparkline ring buffer
+   (ResourceMeter). `SparklineBuffer` ring buffer.
+6. Tests: `Strata.Interaction.Tests` — parse, registry, end-to-end CSS→cascade→dispatch, additive
+   semantics, subscription identity stability, detach-on-removal, descendant collection, samples.
 
-## Slices (coherent chunks)
-1. Packages: Facebook.Yoga 2.0.1 → Yoga.Net 3.2.3.
-2. Layout properties in Strata.Properties.Styling: display, flex-direction, flex-grow/shrink/basis,
-   align-items, justify-content, width, height, min/max-width/height, position, top/right/bottom/left,
-   gap/row-gap/column-gap, grid-template-columns, grid-template-rows. (None exist yet.)
-3. Strata.Layout.Yoga: Rect, Size value types; LayoutResult; YogaLayoutPass (mapping per §4.1,
-   parallel tree, index-walk rect recovery, integer cell rounding, Trivial flag).
-4. SpectreProjection: optional LayoutResult; Grid for display:grid, Canvas for absolute position.
-5. Dashboard demo: multi-column grid stylesheet over the process list.
-6. Tests: Strata.Layout.Yoga.Tests (flex split, grid placement, cell rounding, absolute, trivial,
-   skip-layout) + a SpectreProjection grid/layout test.
-7. Solution wiring (sln add for new src + test projects).
+## Integration decision (no core cascade change)
+- Additive merge lives in the interaction layer via `ICascadeResult.GetMatchedRules(node)`. The
+  core cascade keeps single-winner-per-property semantics untouched; `command:` is never read via
+  `GetComputed`. Clean, minimal — no modification to Strata.Core.
 
 ## Acceptance
-- All Phase 4 deliverables present; mapping matches §4.1; LayoutPass computes rects;
-  SpectreProjection honors them; dashboard renders Get-Process as multi-column grid;
-  tests green; build clean net8.0;net10.0.
+- All redesigned Phase 5 deliverables present; `command:` parses additive ident/event pairs;
+  subscription-diff lifecycle correct; identity stable across re-cascade; ICommandRegistry single
+  registration; sample handlers implemented + tested. 183 tests green (+28). Clean net8.0;net10.0
+  build, Release AOT-analyzers clean (0 warnings, warnings-as-errors).

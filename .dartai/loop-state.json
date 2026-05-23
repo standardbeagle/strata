@@ -1,9 +1,9 @@
 {
   "status": "running",
-  "iterations": 1,
-  "spawns": 1,
+  "iterations": 2,
+  "spawns": 2,
   "started_at": "2026-05-23T07:04:00Z",
-  "last_iteration_at": "2026-05-23T07:30:00Z",
+  "last_iteration_at": "2026-05-23T07:45:00Z",
   "last_subagent": "dartai-task-executor",
   "loop_task_id": "cQRLqs99S3kp",
   "dartboard": "Personal/strata",
@@ -27,6 +27,23 @@
       "failure_reason": null,
       "fix_task_created": false,
       "fix_task_id": null
+    },
+    {
+      "task_id": "4SrLff53j5D6",
+      "iteration": 2,
+      "status": "completed",
+      "started_at": "2026-05-23T07:33:00Z",
+      "completed_at": "2026-05-23T07:45:00Z",
+      "phase_completed": "phase-9",
+      "failed_phase": null,
+      "files_changed": 12,
+      "tests_added": 28,
+      "plan_adjustments": 1,
+      "completion_summary": "Phase 5 INTERACTIONS (not legacy Behaviors). Task body described the deprecated imperative IBehavior/BehaviorHost/DI-keyed-service design; docs/05-interaction-redesign.md + 04-plan.md §Phase 5 + tech-design/spec/requirements supersession banners + decision log + recent commits all SUPERSEDE it with selector-bound IObservable<HostEvent>. Implemented the redesigned scope (push-back, goal-driven): new Strata.Interaction package - command: property (additive cascade, CSS-deviation documented), HostEvent records, IInputSource (Subject-backed), ICommandRegistry (single-reg-per-name, replaces DI keyed services), InteractionHost subscription-diff dispatcher (identity stable across re-cascade, detach-before-reattach), sample handlers (navigate/kill-confirm/sparkline). Additive merge via GetMatchedRules, no core cascade change. 183 tests green (+28), clean net8.0;net10.0 Release build, AOT analyzers clean (0 warnings, warnings-as-errors).",
+      "failure_reason": null,
+      "fix_task_created": false,
+      "fix_task_id": null,
+      "notes": "RECOMMEND: update Dart task 4SrLff53j5D6 title/body from 'Phase 5 — Behaviors' to 'Phase 5 — Interactions'; the body is stale (created 2026-05-13, before the 2026-05-16 redesign)."
     }
   ]
 }

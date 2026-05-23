@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework />
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <PackageId>Strata.Interaction</PackageId>
+    <Description>Selector-bound interaction layer for Strata: the `command:` property, IInputSource/HostEvent, ICommandRegistry, and a subscription-diff dispatcher that wires stylesheet-declared commands to System.Reactive event streams as the cascade changes.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
+    <ProjectReference Include="..\Strata.Core\Strata.Core.csproj" />
+    <PackageReference Include="System.Reactive" />
+  </ItemGroup>
+</Project>

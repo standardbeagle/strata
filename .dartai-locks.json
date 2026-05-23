@@ -1,17 +1,3 @@
 {
-  "claims": {
-    "4SrLff53j5D6": {
-      "runner_instance_id": "DESKTOP-NPIOPS6-claude",
-      "runner_email": "andybrummer@standardbeagle.com",
-      "claimed_at": "2026-05-23T07:32:00Z",
-      "agent_id": "dartai-loop-strata",
-      "parent_loop_id": "cQRLqs99S3kp",
-      "purpose": "Phase 5 Behaviors implementation",
-      "source_event": {
-        "loop_id": "cQRLqs99S3kp",
-        "task_id": "4SrLff53j5D6",
-        "conversation_id": null
-      }
-    }
-  }
+  "claims": {}
 }
