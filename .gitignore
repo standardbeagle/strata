@@ -1,3 +1,9 @@
+# worktrack per-clone context (carries personal lease_holder — never commit)
+.worktrack/context.md
+
+# local NuGet feed (Strata packed for sibling repos, e.g. ../ps-bash)
+local-feed/
+
 # Build output
 bin/
 obj/
