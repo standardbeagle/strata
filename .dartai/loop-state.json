@@ -1,0 +1,15 @@
+{
+  "status": "running",
+  "iterations": 0,
+  "spawns": 0,
+  "started_at": "2026-05-23T07:04:00Z",
+  "last_iteration_at": null,
+  "last_subagent": null,
+  "loop_task_id": "cQRLqs99S3kp",
+  "dartboard": "Personal/strata",
+  "runner_instance_id": "DESKTOP-NPIOPS6-claude",
+  "runner_email": "andybrummer@standardbeagle.com",
+  "runner_dart_id": "Andy Brummer",
+  "agent_id": "dartai-loop-strata",
+  "tasks": []
+}

@@ -1,0 +1,17 @@
+{
+  "claims": {
+    "CbtIu8VdrXE2": {
+      "runner_instance_id": "DESKTOP-NPIOPS6-claude",
+      "runner_email": "andybrummer@standardbeagle.com",
+      "claimed_at": "2026-05-23T07:05:00Z",
+      "agent_id": "dartai-loop-strata",
+      "parent_loop_id": "cQRLqs99S3kp",
+      "purpose": "Phase 4 Yoga layout implementation",
+      "source_event": {
+        "loop_id": "cQRLqs99S3kp",
+        "task_id": "CbtIu8VdrXE2",
+        "conversation_id": null
+      }
+    }
+  }
+}
