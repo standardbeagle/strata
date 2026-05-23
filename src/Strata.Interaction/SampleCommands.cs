@@ -39,6 +39,21 @@ public static class SampleCommands
     }
 
     /// <summary>
+    /// Register a focus-navigation keymap bound directly to a <see cref="FocusController"/>:
+    /// <see cref="NavigateDown"/> moves focus to the next node, <see cref="NavigateUp"/> to the
+    /// previous. This is the redesign's intended wiring — navigation commands drive the controller
+    /// that owns the <c>:focused</c> pseudo-state.
+    /// </summary>
+    public static void RegisterNavigation(ICommandRegistry registry, FocusController focus)
+    {
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(focus);
+
+        registry.Register(NavigateDown, _ => focus.MoveNext());
+        registry.Register(NavigateUp, _ => focus.MovePrevious());
+    }
+
+    /// <summary>
     /// Register the <see cref="Kill"/> command. The handler asks <paramref name="confirm"/> before
     /// invoking <paramref name="kill"/> — the <c>KillProcessConfirm</c>-equivalent: a confirmation
     /// gate guards a destructive action on the firing node.

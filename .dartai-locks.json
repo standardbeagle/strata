@@ -1,17 +1,3 @@
 {
-  "claims": {
-    "i00C8umtoUir": {
-      "runner_instance_id": "DESKTOP-NPIOPS6-claude",
-      "runner_email": "andybrummer@standardbeagle.com",
-      "claimed_at": "2026-05-23T07:44:00Z",
-      "agent_id": "dartai-loop-strata",
-      "parent_loop_id": "cQRLqs99S3kp",
-      "purpose": "Phase 6 Focus + Selection + Interactive entry (re-scoped)",
-      "source_event": {
-        "loop_id": "cQRLqs99S3kp",
-        "task_id": "i00C8umtoUir",
-        "conversation_id": null
-      }
-    }
-  }
+  "claims": {}
 }

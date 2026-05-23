@@ -2,12 +2,14 @@ namespace Strata.Interaction.Tests;
 
 /// <summary>
 /// Minimal in-memory tree node for interaction tests. Identity = reference equality, matching the
-/// pattern in the other Strata test projects.
+/// pattern in the other Strata test projects. Implements <see cref="IPseudoStateMutable"/> so the
+/// focus/selection controllers can toggle its pseudo-states at runtime.
 /// </summary>
-internal sealed class InteractionTestNode : ITreeNode
+internal sealed class InteractionTestNode : ITreeNode, IPseudoStateMutable
 {
     private readonly Dictionary<string, object?> _attributes;
     private readonly List<InteractionTestNode> _children = new();
+    private readonly HashSet<string> _pseudoStates;
 
     public InteractionTestNode(
         string kind,
@@ -19,7 +21,7 @@ internal sealed class InteractionTestNode : ITreeNode
         Kind = kind;
         Id = id;
         Classes = (classes ?? Enumerable.Empty<string>()).ToHashSet();
-        PseudoStates = (pseudoStates ?? Enumerable.Empty<string>()).ToHashSet();
+        _pseudoStates = (pseudoStates ?? Enumerable.Empty<string>()).ToHashSet();
         _attributes = attributes is null
             ? new Dictionary<string, object?>(StringComparer.Ordinal)
             : new Dictionary<string, object?>(attributes, StringComparer.Ordinal);
@@ -31,7 +33,11 @@ internal sealed class InteractionTestNode : ITreeNode
 
     public IReadOnlySet<string> Classes { get; }
 
-    public IReadOnlySet<string> PseudoStates { get; }
+    public IReadOnlySet<string> PseudoStates => _pseudoStates;
+
+    public bool AddPseudoState(string state) => _pseudoStates.Add(state);
+
+    public bool RemovePseudoState(string state) => _pseudoStates.Remove(state);
 
     public ITreeNode? Parent { get; private set; }
 
