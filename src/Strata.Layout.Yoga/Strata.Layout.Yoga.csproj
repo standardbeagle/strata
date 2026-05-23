@@ -3,14 +3,13 @@
     <TargetFramework />
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <PackageId>Strata.Render.Spectre</PackageId>
-    <Description>Spectre.Console projection for Strata: turns a styled tree into an IRenderable for inline console output.</Description>
+    <PackageId>Strata.Layout.Yoga</PackageId>
+    <Description>Yoga-backed flexbox/grid layout pass for Strata: maps computed style to a parallel Yoga tree and computes terminal-cell rects.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
     <ProjectReference Include="..\Strata.Core\Strata.Core.csproj" />
     <ProjectReference Include="..\Strata.Properties.Styling\Strata.Properties.Styling.csproj" />
-    <ProjectReference Include="..\Strata.Layout.Yoga\Strata.Layout.Yoga.csproj" />
-    <PackageReference Include="Spectre.Console" />
+    <PackageReference Include="Yoga.Net" />
   </ItemGroup>
 </Project>

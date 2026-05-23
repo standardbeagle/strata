@@ -24,8 +24,9 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     <PackageVersion Include="System.Reactive" Version="6.0.1" />
 
-    <!-- Layout (Phase 4) -->
-    <PackageVersion Include="Facebook.Yoga" Version="2.0.1" />
+    <!-- Layout (Phase 4): Chenrensong's pure-managed Yoga port. Namespace is Facebook.Yoga;
+         package id is Yoga.Net. 3.2.x carries CSS Grid support (Display.Grid, grid templates). -->
+    <PackageVersion Include="Yoga.Net" Version="3.2.3" />
 
     <!-- Projections (Phase 3/7) -->
     <PackageVersion Include="Spectre.Console" Version="0.49.1" />

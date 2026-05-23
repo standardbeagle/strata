@@ -292,10 +292,12 @@ The mapping table (computed style → Yoga property):
 | `min-width` / `max-width` etc | corresponding |
 | `padding-*` / `margin-*` | corresponding |
 | `position` (`absolute`) + `top/left/right/bottom` | `PositionType` + edges |
-| `grid-template-columns` / `grid-template-rows` | Yoga grid (3.2+) |
+| `grid-template-columns` / `grid-template-rows` | grid-as-flex emulation (see note) |
 | `gap` / `row-gap` / `column-gap` | corresponding |
 
 Yoga's unit is the same as ours: terminal cells. We pass `availableSize` in cells, get back rects in cells.
+
+**Grid status (Phase 4 implementation note).** The Yoga.Net 3.2.3 port exposes the CSS-Grid API surface (`Display.Grid`, grid templates, grid lines) but its layout algorithm does **not** implement grid — grid children collapse to the container origin with zero height. Per the Phase 4 risk fallback in `04-plan.md` ("fall back to flex-only for v1.0 and document grid as v1.1"), `display: grid` is emulated in `YogaLayoutPass` as a wrapping flex row: each direct child gets an explicit width from the `grid-template-columns` track at its column index and a height from the `grid-template-rows` track at its row index (`flex-shrink: 0`), and Yoga's flex-wrap flows the cells row-major. This produces a real multi-column terminal grid (verified by the dashboard demo and `YogaLayoutPassTests`). Native grid placement — column/row spanning, named lines, `minmax`/`fr` track resolution — is deferred to v1.1 when the port's grid algorithm matures. Track lists are still parsed (`TrackListValue`) and drive cell sizing today.
 
 ### 4.2 When to skip layout
 

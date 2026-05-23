@@ -1,0 +1,29 @@
+/* Dashboard stylesheet — lays out a process list as a multi-column grid (Phase 4).
+   The grid container flows process cards into two columns; the Yoga layout pass
+   computes their cell rects and SpectreProjection emits a Spectre Grid. */
+
+#dashboard {
+    display: grid;
+    grid-template-columns: 24 24;
+    grid-template-rows: 1 1;
+    column-gap: 2;
+    row-gap: 1;
+}
+
+Process {
+    color: white;
+}
+
+Process[Status="running"] {
+    color: brightgreen;
+}
+
+Process.high-cpu {
+    color: brightyellow;
+    font-weight: bold;
+}
+
+Process.zombie {
+    color: gray;
+    font-style: italic;
+}

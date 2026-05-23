@@ -4,6 +4,7 @@ using Strata;
 using Strata.Adapters.JsonNode;
 using Strata.Core;
 using Strata.Css;
+using Strata.Layout.Yoga;
 using Strata.Properties.Styling;
 using Strata.Render.Spectre;
 
@@ -58,6 +59,38 @@ AnsiConsole.WriteLine();
 AnsiConsole.Write(projection.Project(root, cascade));
 AnsiConsole.WriteLine();
 
+// --- Dashboard: lay the same process list out as a multi-column grid (Phase 4). -----------
+var dashCssPath = Path.Combine(AppContext.BaseDirectory, "dashboard.css");
+var dashCss = File.ReadAllText(dashCssPath);
+
+// Root grid container with id="dashboard"; each Process is a grid cell.
+ITreeNode dashRoot = new ClassAwareNode(rawRoot, parent: null, id: "dashboard");
+
+var dashRegistry = StylingProperties.CreateRegistry();
+LayoutProperties.RegisterAll(dashRegistry);
+var dashStylesheet = new CssStylesheetParser(new CssSelectorLanguage(), dashRegistry).Parse(dashCss);
+var dashCascade = new Cascade(dashRegistry).Compute(dashRoot, dashStylesheet);
+
+// Compute layout against the terminal width, then project honoring the grid rects.
+var available = new Strata.Layout.Yoga.Size(
+    Math.Max(20, Console.IsOutputRedirected ? 80 : Console.WindowWidth), 8);
+var layout = YogaLayoutPass.Compute(dashRoot, dashCascade, available);
+
+var dashProjection = new SpectreProjection
+{
+    TextSelector = node =>
+    {
+        node.TryGetAttribute("Name", out var name);
+        node.TryGetAttribute("Cpu", out var cpu);
+        return node.Kind == "Process" ? $"{name,-12} cpu:{cpu,3}" : string.Empty;
+    },
+};
+
+AnsiConsole.MarkupLine("[bold]Dashboard[/] — [dim]Get-Process as a multi-column grid (dashboard.css)[/]");
+AnsiConsole.WriteLine();
+AnsiConsole.Write(dashProjection.Project(dashRoot, dashCascade, layout));
+AnsiConsole.WriteLine();
+
 // A minimal ITreeNode wrapper that surfaces the JSON "class" property as Classes,
 // preserving the underlying JsonTreeNode for everything else.
 internal sealed class ClassAwareNode : ITreeNode
@@ -65,10 +98,13 @@ internal sealed class ClassAwareNode : ITreeNode
     private readonly ITreeNode _inner;
     private readonly List<ClassAwareNode> _children;
 
-    public ClassAwareNode(ITreeNode inner, ITreeNode? parent)
+    private readonly string? _id;
+
+    public ClassAwareNode(ITreeNode inner, ITreeNode? parent, string? id = null)
     {
         _inner = inner;
         Parent = parent;
+        _id = id ?? inner.Id;
 
         var classes = new HashSet<string>(StringComparer.Ordinal);
         if (inner.TryGetAttribute("class", out var c) && c is string s)
@@ -90,7 +126,7 @@ internal sealed class ClassAwareNode : ITreeNode
 
     public string Kind => _inner.Kind;
 
-    public string? Id => _inner.Id;
+    public string? Id => _id;
 
     public IReadOnlySet<string> Classes { get; }
 

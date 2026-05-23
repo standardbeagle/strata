@@ -1,15 +1,32 @@
 {
   "status": "running",
-  "iterations": 0,
-  "spawns": 0,
+  "iterations": 1,
+  "spawns": 1,
   "started_at": "2026-05-23T07:04:00Z",
-  "last_iteration_at": null,
-  "last_subagent": null,
+  "last_iteration_at": "2026-05-23T07:30:00Z",
+  "last_subagent": "dartai-task-executor",
   "loop_task_id": "cQRLqs99S3kp",
   "dartboard": "Personal/strata",
   "runner_instance_id": "DESKTOP-NPIOPS6-claude",
   "runner_email": "andybrummer@standardbeagle.com",
   "runner_dart_id": "Andy Brummer",
   "agent_id": "dartai-loop-strata",
-  "tasks": []
+  "tasks": [
+    {
+      "task_id": "CbtIu8VdrXE2",
+      "iteration": 1,
+      "status": "completed",
+      "started_at": "2026-05-23T07:11:00Z",
+      "completed_at": "2026-05-23T07:30:00Z",
+      "phase_completed": "phase-9",
+      "failed_phase": null,
+      "files_changed": 13,
+      "tests_added": 12,
+      "plan_adjustments": 2,
+      "completion_summary": "Phase 4 Yoga layout: new Strata.Layout.Yoga package (YogaLayoutPass maps computed style to a parallel Yoga tree per tech-design 4.1 and computes integer-cell rects), layout property descriptors, grid-as-flex emulation (native Yoga.Net 3.2.3 grid is non-functional - documented v1.1 fallback per plan risk), SpectreProjection layout overload (Grid for display:grid, absolute placement), multi-column dashboard demo. 155 tests green, clean net8.0;net10.0 build, AOT publish smoke passes.",
+      "failure_reason": null,
+      "fix_task_created": false,
+      "fix_task_id": null
+    }
+  ]
 }
