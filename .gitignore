@@ -36,3 +36,6 @@ Thumbs.db
 *.log
 *.tmp
 .history/
+
+# worktrack loop state (per-clone; may contain lease-holder email)
+.worktrack/

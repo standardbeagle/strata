@@ -3,7 +3,7 @@
     <TargetFramework />
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <PackageId>Strata.Adapters.PSObject</PackageId>
+    <PackageId>StandardBeagle.Strata.Adapters.PSObject</PackageId>
     <Description>Strata tree adapter wrapping PowerShell PSObject. Cmdlet-author-friendly: compiles against PowerShellStandard.Library only.</Description>
   </PropertyGroup>
   <ItemGroup>

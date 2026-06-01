@@ -33,7 +33,13 @@
     <PackageProjectUrl>https://github.com/standardbeagle/strata</PackageProjectUrl>
     <RepositoryUrl>https://github.com/standardbeagle/strata</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>css;cascade;selector;tree;styling;terminal;aot</PackageTags>
+
+    <!-- SourceLink: built into the .NET 8+ SDK (no package reference needed).
+         These flags + PublishRepositoryUrl produce source-linked, debuggable symbols. -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
@@ -41,4 +47,24 @@
   <PropertyGroup Condition="'$(IsPackable)' == ''">
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <!-- Versioning: MinVer derives the version from git tags (prefix `v`).
+       Untagged builds → 0.0.0-alpha.0.N. Tag `v0.1.0-alpha.1` → that exact version.
+       Applied to every project (test/benchmark assemblies just get a version stamp;
+       they are not packed). Not guarded on IsPackable: that property is set in each
+       csproj body, which imports after this file, so the guard would evaluate false. -->
+  <PropertyGroup>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Pack each packable project's own README.md to the package root (for PackageReadmeFile).
+       Evaluated per-project; the Exists guard skips projects without a README (tests/samples). -->
+  <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)/README.md')">
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@
     <TargetFramework />
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <PackageId>Strata.Adapters.JsonNode</PackageId>
+    <PackageId>StandardBeagle.Strata.Adapters.JsonNode</PackageId>
     <Description>Strata tree adapter wrapping System.Text.Json JsonNode. No third-party dependencies.</Description>
   </PropertyGroup>
   <ItemGroup>

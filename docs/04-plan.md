@@ -64,10 +64,10 @@ Replace the hand-coded selector with a parsed CSS one. End of phase: any reasona
 ### Deliverables
 
 - `Strata.Css` package
-- ExCSS integration for tokenization and AST
+- ~~ExCSS integration for tokenization and AST~~ — **superseded:** hand-written, AOT-clean tokenizer + parser (no ExCSS dependency).
 - `CssSelectorLanguage : ISelectorLanguage`
 - `CssSelector : ISelector` covering: type, id, class, attribute (all 5 ops), descendant, child, adjacent sibling, general sibling, comma list, `:not`, `:is`, `:where`, `:has`, `:nth-child`, `:first-child` / `:last-child` / `:only-child`, `:empty`, `:root`, `:focused` / `:selected` / `:hovered`
-- Typed predicate compilation via `System.Linq.Dynamic.Core` for `[expr]`
+- ~~Typed predicate compilation via `System.Linq.Dynamic.Core` for `[expr]`~~ — **superseded:** hand-written predicate DSL, evaluated through the opt-in `CssPredicates.Enable()` reflection hook (P1.7b).
 - Specificity computation per spec
 - Conformance test suite with 50+ fixture cases
 
@@ -311,10 +311,10 @@ A faster pace is feasible — Phases 1, 2, 5, 6 could each compress by a few day
 This section is to be appended to as decisions are locked down:
 
 - *(Phase -1)* License: TBD (MIT recommended)
-- *(Phase -1)* Target framework: .NET 9.0+
+- *(Phase -1)* Target framework: **net8.0;net10.0 multi-target** (libraries), so PsBash.Cmdlets can consume Strata on both PS hosts; tests/samples are net10-only. (Was ".NET 9.0+".)
 - *(Phase -1)* Repository: standardbeagle/strata, separate from standardbeagle-tools
-- *(Phase 0)* `ITreeNode.Children` type: TBD (`IEnumerable` vs `IReadOnlyList`)
-- *(Phase 1)* Dynamic.Core AOT status: TBD; fallback parser ready
+- *(Phase 0)* `ITreeNode.Children` type: **resolved — `IEnumerable<ITreeNode>`** (lazy enumeration kept; no incremental-update pressure to switch to `IReadOnlyList` yet).
+- *(Phase 1)* Dynamic.Core AOT status: **resolved — abandoned.** `System.Linq.Dynamic.Core` was replaced by a hand-written, AOT-clean predicate DSL for `[expr]` typed predicates (P1.7b). ExCSS was likewise dropped in favor of a hand-written selector/stylesheet parser. Neither package is referenced.
 - *(Phase 5)* Interaction model: selector-bound `IObservable<HostEvent>` subscriptions, **not** `IBehavior.Attach/Detach`. `command:` property carries `(command-name, event-name)` pairs; additive cascade semantics (same deviation from CSS as the original `behavior:` design, but narrower contract). Replaces FR-12 + §6 of spec/tech-design. See `docs/05-interaction-redesign.md`.
 - *(Phase 8 removed, 2026-05-23)* Bifrost adapter dropped. Was validation-only (prove engine generalizes beyond PSObject); Phase 9 (JSONPath) already proves selector/tree-agnosticism. Primary product value = styling + interaction for PowerShell cmdlets (Phases 3–7), which does not depend on a second tree adapter. Cross-repo BifrostQL port + marketing write-up not worth the cost. v1.0 validation track is now Phase 9 alone.
 - *(Phase 7)* Reconciliation strategy: **full diff — shipped.** The tear-down-recreate fallback was authorised but not needed; Terminal.Gui v2 `View` exposes mutable `Text`/`ColorScheme` and an add/remove `Subviews` collection, so in-place diff reconciliation is clean. See `docs/06-stateful-projection.md` §3.

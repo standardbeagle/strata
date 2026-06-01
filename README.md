@@ -14,7 +14,26 @@ The core knows nothing about styling, rendering, or HTML. It knows about trees, 
 
 ## Status
 
-Pre-alpha. Phase -1 scaffold. See [`docs/04-plan.md`](docs/04-plan.md) for roadmap.
+Pre-alpha. Phase 3 shipped — CSS subset selectors, cascade with specificity/inheritance/hot-reload,
+the built-in styling property set, and a Spectre.Console projection, AOT-verified end-to-end.
+Layout (Yoga), interactions, JSONPath, and the Terminal.Gui projection are still ahead. See
+[`docs/04-plan.md`](docs/04-plan.md) for the roadmap.
+
+## Install
+
+Packages publish to NuGet under the `StandardBeagle.Strata.*` prefix as prereleases:
+
+```bash
+dotnet add package StandardBeagle.Strata.Core --prerelease
+dotnet add package StandardBeagle.Strata.Css --prerelease
+dotnet add package StandardBeagle.Strata.Properties.Styling --prerelease
+dotnet add package StandardBeagle.Strata.Render.Spectre --prerelease
+# adapters
+dotnet add package StandardBeagle.Strata.Adapters.JsonNode --prerelease
+dotnet add package StandardBeagle.Strata.Adapters.PSObject --prerelease
+```
+
+(The C# namespaces remain `Strata.*`; only the package IDs carry the `StandardBeagle.` prefix.)
 
 ## Documentation
 

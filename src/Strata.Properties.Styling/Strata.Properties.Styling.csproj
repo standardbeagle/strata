@@ -3,7 +3,7 @@
     <TargetFramework />
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <PackageId>Strata.Properties.Styling</PackageId>
+    <PackageId>StandardBeagle.Strata.Properties.Styling</PackageId>
     <Description>Common styling property descriptors for Strata: color, background, font-weight, font-style, text-decoration, wrap, overflow, padding, margin. Depends only on Strata.Core.</Description>
   </PropertyGroup>
   <ItemGroup>

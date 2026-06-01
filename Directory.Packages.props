@@ -45,5 +45,8 @@
 
     <!-- Benchmarks -->
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+
+    <!-- Build/packaging tooling -->
+    <PackageVersion Include="MinVer" Version="7.0.0" />
   </ItemGroup>
 </Project>

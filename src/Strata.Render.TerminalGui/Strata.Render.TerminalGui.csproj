@@ -3,7 +3,7 @@
     <TargetFramework />
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <PackageId>Strata.Render.TerminalGui</PackageId>
+    <PackageId>StandardBeagle.Strata.Render.TerminalGui</PackageId>
     <Description>Terminal.Gui v2 projection for Strata: reconciles a styled tree into a full-screen View tree, sharing the cascade engine with the Spectre projection.</Description>
 
     <!-- AOT/trim exception: Terminal.Gui v2 (prealpha) pulls in System.IO.Abstractions and

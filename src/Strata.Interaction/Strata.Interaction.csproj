@@ -3,7 +3,7 @@
     <TargetFramework />
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <PackageId>Strata.Interaction</PackageId>
+    <PackageId>StandardBeagle.Strata.Interaction</PackageId>
     <Description>Selector-bound interaction layer for Strata: the `command:` property, IInputSource/HostEvent, ICommandRegistry, and a subscription-diff dispatcher that wires stylesheet-declared commands to System.Reactive event streams as the cascade changes.</Description>
   </PropertyGroup>
   <ItemGroup>

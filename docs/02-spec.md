@@ -11,7 +11,7 @@ This document defines the interfaces a v1.0 Strata implementation MUST satisfy. 
 |---|---|---|
 | `Strata.Abstractions` | Interfaces only | — |
 | `Strata.Core` | Cascade engine, registries, primitives | Abstractions |
-| `Strata.Css` | CSS selector language | Core, ExCSS, System.Linq.Dynamic.Core |
+| `Strata.Css` | CSS selector language | Core (ExCSS and System.Linq.Dynamic.Core were dropped — see note) |
 | `Strata.JsonPath` | JSONPath selector language | Core, JsonPath.Net |
 | `Strata.Behaviors` | Behavior lifecycle | Core, MS.Extensions.DI.Abstractions, System.Reactive |
 | `Strata.Properties.Styling` | Common styling property descriptors | Core |
@@ -23,6 +23,12 @@ This document defines the interfaces a v1.0 Strata implementation MUST satisfy. 
 | `Strata.Diagnostics` | Inspection, dumps, ETW | Core |
 
 `Strata.Abstractions` and `Strata.Core` have **no third-party dependencies**.
+
+> **Superseded (Phase 1):** `Strata.Css` no longer depends on **ExCSS** or
+> **System.Linq.Dynamic.Core**. Tokenization, the selector/stylesheet parser, and the
+> `[expr]` typed-predicate DSL are all hand-written and AOT-clean; predicate *evaluation*
+> is gated behind the opt-in `CssPredicates.Enable()` reflection hook. The §3.1 typed-predicate
+> prose below that still references Dynamic.Core describes the original design only.
 
 ## 2. Core abstractions
 

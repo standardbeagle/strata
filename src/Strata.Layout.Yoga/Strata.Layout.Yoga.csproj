@@ -3,7 +3,7 @@
     <TargetFramework />
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <PackageId>Strata.Layout.Yoga</PackageId>
+    <PackageId>StandardBeagle.Strata.Layout.Yoga</PackageId>
     <Description>Yoga-backed flexbox/grid layout pass for Strata: maps computed style to a parallel Yoga tree and computes terminal-cell rects.</Description>
   </PropertyGroup>
   <ItemGroup>

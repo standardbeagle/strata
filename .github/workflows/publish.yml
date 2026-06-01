@@ -1,0 +1,50 @@
+name: publish
+
+# Publishes all packable Strata libraries to nuget.org as StandardBeagle.Strata.*
+# on any tag matching v* (e.g. v0.1.0-alpha.1). MinVer derives the package version
+# from the tag. Requires the NUGET_API_KEY repository secret (scope: push new
+# packages and versions, glob StandardBeagle.Strata.*).
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  publish:
+    name: pack + push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # MinVer needs the full history + tags to compute the version.
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Strata.sln
+
+      - name: Build
+        run: dotnet build Strata.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Strata.sln --configuration Release --no-build
+
+      - name: Pack
+        run: dotnet pack Strata.sln --configuration Release --no-build -o ./artifacts /p:ContinuousIntegrationBuild=true
+
+      - name: Push to nuget.org
+        run: >-
+          dotnet nuget push "./artifacts/*.nupkg"
+          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
