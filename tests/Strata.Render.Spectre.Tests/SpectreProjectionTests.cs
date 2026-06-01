@@ -88,6 +88,33 @@ public sealed class SpectreProjectionTests
         RenderToText(projection.Project(root, cascade)).Should().Contain("<Process>");
     }
 
+    [Fact]
+    public void Button_kind_leaf_renders_with_bracket_chrome()
+    {
+        var button = new TextNode("Button", "OK");
+        var (cascade, root) = StyleTree("Button { color: white; }", button);
+
+        var text = RenderToText(new SpectreProjection().Project(root, cascade));
+
+        // A native button wears bracket chrome so it reads as an actionable control, not a label.
+        text.Should().Contain("[ OK ]");
+    }
+
+    [Fact]
+    public void Dialog_kind_renders_as_a_bordered_titled_panel()
+    {
+        var dialog = new TextNode("Dialog", "")
+            .Add(new TextNode("Cell", "Delete this file?"));
+        var (cascade, root) = StyleTree("Cell { color: white; }", dialog);
+
+        var text = RenderToText(new SpectreProjection().Project(root, cascade));
+
+        // A Dialog floats its content inside a bordered box titled by its kind.
+        text.Should().Contain("Delete this file?");
+        text.Should().Contain("Dialog");
+        text.Should().Contain("│", "the dialog is drawn inside a bordered panel");
+    }
+
     /// <summary>In-memory node whose Underlying renders as a fixed string.</summary>
     private sealed class TextNode(string kind, string text) : ITreeNode
     {

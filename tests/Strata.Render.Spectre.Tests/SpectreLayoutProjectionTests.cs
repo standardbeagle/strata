@@ -94,6 +94,31 @@ public sealed class SpectreLayoutProjectionTests
         noteLine.Should().BeGreaterThan(0, "an absolutely positioned child with top:3 is offset downward");
     }
 
+    [Fact]
+    public void Absolute_children_compose_in_z_index_order_not_document_order()
+    {
+        // Document order is top-then-bottom, but z-index inverts the paint order: the lower
+        // z-index ("bottom", z:1) composes first, the higher ("top", z:5) composes last (frontmost).
+        var root = new LayoutNode("Panel", "panel")
+            .Add(new LayoutNode("Float", "top", text: "TOPLAYER"))
+            .Add(new LayoutNode("Float", "bottom", text: "BOTLAYER"));
+
+        var (cascade, layout) = StyleAndLayout(
+            """
+            #panel  { display: flex; flex-direction: column; width: 30; height: 6; }
+            #top    { position: absolute; top: 0; left: 0; width: 8; height: 1; z-index: 5; }
+            #bottom { position: absolute; top: 1; left: 0; width: 8; height: 1; z-index: 1; }
+            """, root, 30, 6);
+
+        var text = RenderToText(new SpectreProjection().Project(root, cascade, layout));
+
+        var topIdx = text.IndexOf("TOPLAYER", StringComparison.Ordinal);
+        var botIdx = text.IndexOf("BOTLAYER", StringComparison.Ordinal);
+        topIdx.Should().BeGreaterThan(0);
+        botIdx.Should().BeGreaterThan(0);
+        botIdx.Should().BeLessThan(topIdx, "the lower z-index composes first; the higher paints last");
+    }
+
     /// <summary>In-memory node carrying an id, classes, and fixed render text.</summary>
     private sealed class LayoutNode : ITreeNode
     {

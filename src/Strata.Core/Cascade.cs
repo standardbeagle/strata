@@ -190,6 +190,24 @@ internal sealed class CascadeResult : ICascadeResult
             $"Property '{property}' is not registered and has no declared value on this node.");
     }
 
+    public bool TryGetComputed<TValue>(ITreeNode node, string property, out TValue value)
+        where TValue : IPropertyValue
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(property);
+
+        // Resolution succeeds only when the property is registered: an unregistered property has
+        // no initial value to fall back to, so there is nothing meaningful to return.
+        if (_properties.TryGet(property, out _))
+        {
+            value = GetComputed<TValue>(node, property);
+            return true;
+        }
+
+        value = default!;
+        return false;
+    }
+
     public IReadOnlyList<RuleApplication> GetMatchedRules(ITreeNode node)
     {
         ArgumentNullException.ThrowIfNull(node);

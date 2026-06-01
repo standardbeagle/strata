@@ -72,6 +72,13 @@ public static class LayoutProperties
     /// <inheritdoc cref="Position"/>
     public const string Left = "left";
 
+    /// <summary>
+    /// Paint/stacking order among overlapping siblings. Higher values paint later (on top).
+    /// Does not affect flex/grid flow — only the order in which absolutely-positioned and
+    /// overlay siblings are composited. Default <c>0</c>.
+    /// </summary>
+    public const string ZIndex = "z-index";
+
     /// <summary>Gap on both axes between flex/grid items.</summary>
     public const string Gap = "gap";
 
@@ -109,6 +116,7 @@ public static class LayoutProperties
 
         registry.Register(new NumberPropertyDescriptor(FlexGrow, 0, inherits: false));
         registry.Register(new NumberPropertyDescriptor(FlexShrink, 1, inherits: false));
+        registry.Register(new NumberPropertyDescriptor(ZIndex, 0, inherits: false));
 
         registry.Register(new LengthPropertyDescriptor(FlexBasis, LengthValue.Auto, inherits: false));
         registry.Register(new LengthPropertyDescriptor(Width, LengthValue.Auto, inherits: false));

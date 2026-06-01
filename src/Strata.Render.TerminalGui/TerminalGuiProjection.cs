@@ -106,33 +106,61 @@ public sealed class TerminalGuiProjection : IProjection<View>, IDisposable
 
     private View CreateView(ITreeNode node, ICascadeResult cascade)
     {
-        var isLeaf = !node.Children.Any();
-        var view = isLeaf
-            ? new Label { Text = TextSelector(node) }
-            : new View();
+        View view;
+        if (IsButton(node))
+        {
+            // Native button widget: Terminal.Gui's Button renders [ Text ] chrome, takes focus, and
+            // raises Accept on Enter/Space. Command activation flows through the CSS command bindings
+            // the interaction host subscribes on the focused node — the same path other controls use.
+            view = new Button { Text = TextSelector(node) };
+            view.Width = Dim.Auto();
+            view.Height = Dim.Auto();
+        }
+        else if (IsDialog(node))
+        {
+            // Native popup/modal/dialog: a bordered, titled Window floating centered above the rest
+            // of the tree. ReconcileChildren centers and sizes it; ApplyZOrder keeps it frontmost.
+            view = new Window { Title = DialogTitle(node), Modal = true };
+            view.Width = Dim.Absolute(DefaultDialogWidth);
+            view.Height = Dim.Absolute(DefaultDialogHeight);
+        }
+        else
+        {
+            var isLeaf = !node.Children.Any();
+            view = isLeaf ? new Label { Text = TextSelector(node) } : new View();
+            view.Width = Dim.Fill();
+            view.Height = isLeaf ? Dim.Auto() : Dim.Fill();
+        }
 
         view.X = 0;
-        view.Y = Pos.Bottom(view); // overwritten below by ReconcileChildren stacking
-        view.Width = Dim.Fill();
-        view.Height = isLeaf ? Dim.Auto() : Dim.Fill();
+        view.Y = 0;
         view.ColorScheme = BuildColorScheme(node, cascade);
 
-        // Container rows participate in focus traversal so the live FocusController's :focused
-        // node can receive Terminal.Gui focus when the host drives SetFocus.
-        view.CanFocus = isLeaf;
+        // Buttons, dialogs, and leaves take focus directly; plain containers route focus to children
+        // so the live FocusController's :focused node can receive Terminal.Gui focus on SetFocus.
+        view.CanFocus = IsButton(node) || IsDialog(node) || !node.Children.Any();
         return view;
     }
 
     private void UpdateView(View view, ITreeNode node, ICascadeResult cascade)
     {
         // Only mutable, cascade-derived state is refreshed; the view instance (and its focus) stays.
-        if (view is Label && !node.Children.Any())
+        switch (view)
         {
-            var text = TextSelector(node);
-            if (!string.Equals(view.Text, text, StringComparison.Ordinal))
-            {
-                view.Text = text;
-            }
+            case Button button:
+                SetText(button, TextSelector(node));
+                break;
+            case Window window when IsDialog(node):
+                var title = DialogTitle(node);
+                if (!string.Equals(window.Title?.ToString(), title, StringComparison.Ordinal))
+                {
+                    window.Title = title;
+                }
+
+                break;
+            case Label label when !node.Children.Any():
+                SetText(label, TextSelector(node));
+                break;
         }
 
         view.ColorScheme = BuildColorScheme(node, cascade);
@@ -141,14 +169,82 @@ public sealed class TerminalGuiProjection : IProjection<View>, IDisposable
     private void ReconcileChildren(View view, ITreeNode node, ICascadeResult cascade, HashSet<ITreeNode> live)
     {
         var children = node.Children.ToList();
-        View? previous = null;
+        View? previousInFlow = null;
+        var ordered = new List<(View View, double Z)>(children.Count);
+
         foreach (var child in children)
         {
             var childView = Reconcile(child, cascade, view, live);
+            ApplyChildLayout(childView, child, cascade, ref previousInFlow);
+            ordered.Add((childView, ZIndex(child, cascade)));
+        }
 
-            // Stack children vertically: each child sits directly below the previous one.
-            childView.Y = previous is null ? 0 : Pos.Bottom(previous);
-            previous = childView;
+        ApplyZOrder(view, ordered);
+    }
+
+    /// <summary>
+    /// Position one child within its parent. Dialogs float centered, <c>position: absolute</c>
+    /// children sit at their <c>top</c>/<c>left</c> insets, and static children stack vertically
+    /// beneath the previous in-flow sibling (the default vertical-stack behavior).
+    /// </summary>
+    private static void ApplyChildLayout(View childView, ITreeNode child, ICascadeResult cascade, ref View? previousInFlow)
+    {
+        if (IsDialog(child))
+        {
+            childView.X = Pos.Center();
+            childView.Y = Pos.Center();
+            ApplyExplicitSize(childView, child, cascade);
+            return;
+        }
+
+        if (Position(child, cascade) == "absolute")
+        {
+            childView.X = Pos.Absolute(InsetCells(child, cascade, LayoutProperties.Left));
+            childView.Y = Pos.Absolute(InsetCells(child, cascade, LayoutProperties.Top));
+            ApplyExplicitSize(childView, child, cascade);
+            return;
+        }
+
+        childView.X = 0;
+        childView.Y = previousInFlow is null ? 0 : Pos.Bottom(previousInFlow);
+        previousInFlow = childView;
+    }
+
+    /// <summary>
+    /// Re-stack subviews by ascending z-index so the highest z-index paints frontmost. No-op when
+    /// every child is at the default z — preserves creation order and avoids perturbing focus.
+    /// </summary>
+    private static void ApplyZOrder(View parent, List<(View View, double Z)> ordered)
+    {
+        if (ordered.All(o => o.Z == 0d))
+        {
+            return;
+        }
+
+        foreach (var (childView, _) in ordered.OrderBy(o => o.Z))
+        {
+            parent.BringSubviewToFront(childView);
+        }
+    }
+
+    private static void ApplyExplicitSize(View view, ITreeNode node, ICascadeResult cascade)
+    {
+        if (cascade.TryGetComputed<LengthValue>(node, LayoutProperties.Width, out var w) && w.Unit == LengthUnit.Cells)
+        {
+            view.Width = Dim.Absolute((int)w.Value);
+        }
+
+        if (cascade.TryGetComputed<LengthValue>(node, LayoutProperties.Height, out var h) && h.Unit == LengthUnit.Cells)
+        {
+            view.Height = Dim.Absolute((int)h.Value);
+        }
+    }
+
+    private static void SetText(View view, string text)
+    {
+        if (!string.Equals(view.Text, text, StringComparison.Ordinal))
+        {
+            view.Text = text;
         }
     }
 
@@ -184,6 +280,33 @@ public sealed class TerminalGuiProjection : IProjection<View>, IDisposable
         var focus = new TgAttribute(back, foreground);
         return new ColorScheme(normal, focus, normal, normal, focus);
     }
+
+    private const int DefaultDialogWidth = 40;
+    private const int DefaultDialogHeight = 10;
+
+    private static bool IsButton(ITreeNode node)
+        => string.Equals(node.Kind, "Button", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsDialog(ITreeNode node)
+        => string.Equals(node.Kind, "Dialog", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(node.Kind, "Modal", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(node.Kind, "Popup", StringComparison.OrdinalIgnoreCase);
+
+    private static string DialogTitle(ITreeNode node)
+        => node.TryGetAttribute("Title", out var title) && title is not null
+            ? title.ToString() ?? node.Kind
+            : node.Kind;
+
+    private static string Position(ITreeNode node, ICascadeResult cascade)
+        => cascade.TryGetComputed<EnumValue>(node, LayoutProperties.Position, out var p) ? p.Value : "static";
+
+    private static double ZIndex(ITreeNode node, ICascadeResult cascade)
+        => cascade.TryGetComputed<NumberValue>(node, LayoutProperties.ZIndex, out var z) ? z.Value : 0d;
+
+    private static int InsetCells(ITreeNode node, ICascadeResult cascade, string property)
+        => cascade.TryGetComputed<LengthValue>(node, property, out var l) && l.Unit == LengthUnit.Cells
+            ? (int)l.Value
+            : 0;
 
     private static string DefaultText(ITreeNode node)
         => node.Underlying?.ToString() ?? node.Kind;

@@ -58,6 +58,15 @@ public sealed class SpectreProjection : IProjection<IRenderable>
 
     private IRenderable Render(ITreeNode node, ICascadeResult cascade, LayoutResult? layout)
     {
+        var content = RenderContent(node, cascade, layout);
+
+        // A Dialog/Modal/Popup node floats its content inside a bordered, titled box — the static
+        // equivalent of the Terminal.Gui Window the interactive projection raises for the same kind.
+        return IsDialog(node) ? WrapDialog(node, content) : content;
+    }
+
+    private IRenderable RenderContent(ITreeNode node, ICascadeResult cascade, LayoutResult? layout)
+    {
         var children = node.Children.ToList();
         if (children.Count == 0)
         {
@@ -151,7 +160,14 @@ public sealed class SpectreProjection : IProjection<IRenderable>
             layers.Add(new Rows(flow.Select(c => Render(c, cascade, layout))));
         }
 
-        foreach (var child in children.Where(c => Position(c, cascade) == "absolute"))
+        // Absolutely-positioned children compose on top in ascending z-index order: a higher
+        // z-index paints later, so its layer lands last and reads as the frontmost overlay.
+        // OrderBy is stable, so equal z-indexes keep document order — the prior behavior.
+        var absolute = children
+            .Where(c => Position(c, cascade) == "absolute")
+            .OrderBy(c => ZIndex(c, cascade));
+
+        foreach (var child in absolute)
         {
             var rect = layout.GetRect(child);
             var inner = Render(child, cascade, layout);
@@ -166,8 +182,44 @@ public sealed class SpectreProjection : IProjection<IRenderable>
     {
         var text = TextSelector(node);
         var style = BuildStyle(node, cascade);
+
+        // A Button leaf wears bracket chrome — the conventional terminal button affordance —
+        // so it reads as an actionable control rather than a bare label. Its :focused style
+        // (e.g. an inverted color rule) still applies through BuildStyle.
+        if (IsButton(node))
+        {
+            return new Text($"[ {text} ]", style);
+        }
+
         return new Text(text, style);
     }
+
+    /// <summary>Wrap dialog content in a bordered, titled panel — a floating dialog box.</summary>
+    private static Panel WrapDialog(ITreeNode node, IRenderable content)
+    {
+        var panel = new Panel(content)
+        {
+            Border = BoxBorder.Rounded,
+            Header = new PanelHeader(DialogTitle(node)),
+        };
+        return panel;
+    }
+
+    private static string DialogTitle(ITreeNode node)
+        => node.TryGetAttribute("Title", out var title) && title is not null
+            ? title.ToString() ?? node.Kind
+            : node.Kind;
+
+    private static bool IsButton(ITreeNode node)
+        => string.Equals(node.Kind, "Button", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsDialog(ITreeNode node)
+        => string.Equals(node.Kind, "Dialog", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(node.Kind, "Modal", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(node.Kind, "Popup", StringComparison.OrdinalIgnoreCase);
+
+    private static double ZIndex(ITreeNode node, ICascadeResult cascade)
+        => cascade.TryGetComputed<NumberValue>(node, LayoutProperties.ZIndex, out var z) ? z.Value : 0d;
 
     private static Style BuildStyle(ITreeNode node, ICascadeResult cascade)
     {

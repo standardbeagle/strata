@@ -37,6 +37,16 @@ public interface ICascadeResult
         where TValue : IPropertyValue;
 
     /// <summary>
+    /// Non-throwing variant of <see cref="GetComputed{TValue}"/>. Returns <see langword="true"/>
+    /// and the resolved value when <paramref name="property"/> is registered; returns
+    /// <see langword="false"/> with <paramref name="value"/> defaulted when it is not. Lets a
+    /// projection read optional layout properties (e.g. <c>position</c>, <c>z-index</c>) without
+    /// requiring the host to have registered the layout descriptor set.
+    /// </summary>
+    bool TryGetComputed<TValue>(ITreeNode node, string property, out TValue value)
+        where TValue : IPropertyValue;
+
+    /// <summary>
     /// All rules that matched <paramref name="node"/>, ordered by cascade precedence
     /// (winner first).
     /// </summary>

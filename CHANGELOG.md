@@ -9,7 +9,25 @@ derived from git tags via [MinVer](https://github.com/adamralph/minver) (tag pre
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+
+- **Native widgets & overlay layout** — kind-aware projection of interactive controls and
+  floating surfaces, in both renderers:
+  - **Button** — a node of kind `Button` projects to a native control: a Terminal.Gui `Button`
+    (focusable, raises `Accept` on Enter/Space) and, in Spectre, bracket chrome (`[ Label ]`).
+    Its `:focused` styling still cascades.
+  - **Popup / modal / dialog** — a node of kind `Dialog` / `Modal` / `Popup` projects to a
+    bordered, titled, centered surface: a modal Terminal.Gui `Window`, or a Spectre `Panel`.
+    The title comes from a `Title` attribute, falling back to the node kind.
+  - **`z-index` property** (`LayoutProperties.ZIndex`) — paint/stacking order for overlapping
+    absolutely-positioned and overlay siblings; higher paints frontmost. Both projections
+    composite by ascending z-index (stable, so equal z keeps document order).
+  - **Absolute positioning in Terminal.Gui** — `position: absolute` children are placed at their
+    `top` / `left` insets (and `width` / `height` when given) instead of vertical-stacking, so the
+    full-screen projection supports floating layout, not only a vertical stack.
+- **`ICascadeResult.TryGetComputed`** — non-throwing computed-value lookup, letting a projection
+  read optional layout properties (`position`, `z-index`, insets) without requiring the host to
+  have registered the layout descriptor set.
 
 ## [0.1.0-alpha.1] — first prerelease
 
