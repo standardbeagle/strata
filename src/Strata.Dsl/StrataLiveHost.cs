@@ -35,6 +35,10 @@ public sealed class StrataLiveHost : IDisposable
         _projection = new SpectreProjection { TextSelector = StrataText.ForNode };
     }
 
+    /// <summary>Attach a live host that renders to the shared <see cref="AnsiConsole.Console"/>.</summary>
+    public static StrataLiveHost Attach(StrataElement root, string cssPath, StrataStore store)
+        => Attach(root, cssPath, store, AnsiConsole.Console);
+
     /// <summary>
     /// Attach a live host: subscribe to the store, render once immediately, and return the host as
     /// an <see cref="IDisposable"/> that unsubscribes when disposed.

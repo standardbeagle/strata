@@ -45,10 +45,25 @@ function Card {
 
 function Text {
     [CmdletBinding()]
-    param([Parameter(Mandatory, Position = 0)][string]$Content, [string]$Class, [string]$Id, [hashtable]$Attr)
+    param(
+        [Parameter(Position = 0)][string]$Content,
+        [string]$Bind,
+        [string]$Class,
+        [string]$Id,
+        [hashtable]$Attr
+    )
     $merged = if ($Attr) { $Attr.Clone() } else { @{} }
-    $merged['text'] = $Content
+    if ($Content) { $merged['text'] = $Content }
+    if ($Bind) { $merged['bind-text'] = $Bind }
     Element -Kind 'Text' -Class $Class -Id $Id -Attr $merged
+}
+
+function Graph {
+    [CmdletBinding()]
+    param([string]$Bind, [string]$Class, [string]$Id, [hashtable]$Attr)
+    $merged = if ($Attr) { $Attr.Clone() } else { @{} }
+    if ($Bind) { $merged['bind-data'] = $Bind }
+    Element -Kind 'Graph' -Class $Class -Id $Id -Attr $merged
 }
 
 function Show-Styled {
@@ -63,4 +78,38 @@ function Show-Styled {
     }
 }
 
-Export-ModuleMember -Function Element, Stack, Card, Text, Show-Styled
+function New-StrataStore {
+    [CmdletBinding()]
+    param([Parameter(Mandatory, Position = 0)][hashtable]$InitialState)
+    $json = $InitialState | ConvertTo-Json -Depth 25 -Compress
+    [Strata.Dsl.StrataStore]::FromJson($json)
+}
+
+function Update-StrataStore {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, Position = 0)][Strata.Dsl.StrataStore]$Store,
+        [string]$Set,
+        [string]$Append,
+        $Value,
+        [int]$Cap = 0
+    )
+    if (-not $Set -and -not $Append) {
+        throw "Update-StrataStore requires -Set or -Append."
+    }
+    if ($Set) { $Store.Set($Set, $Value) }
+    if ($Append) { $Store.Append($Append, $Value, $Cap) }
+}
+
+function Start-StrataApp {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][Strata.Dsl.StrataElement]$Layout,
+        [Parameter(Mandatory)][Strata.Dsl.StrataStore]$Store,
+        [Parameter(Mandatory)][string]$Stylesheet
+    )
+    $path = (Resolve-Path -LiteralPath $Stylesheet).ProviderPath
+    [Strata.Dsl.StrataLiveHost]::Attach($Layout, $path, $Store)
+}
+
+Export-ModuleMember -Function Element, Stack, Card, Text, Graph, Show-Styled, New-StrataStore, Update-StrataStore, Start-StrataApp

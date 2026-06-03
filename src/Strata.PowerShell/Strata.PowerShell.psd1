@@ -8,7 +8,7 @@
     Description        = 'Author responsive terminal UIs in PowerShell, rendered by Strata.'
     PowerShellVersion  = '7.4'
     RequiredAssemblies = @('Strata.Dsl.dll')
-    FunctionsToExport  = @('Element', 'Stack', 'Card', 'Text', 'Show-Styled')
+    FunctionsToExport  = @('Element', 'Stack', 'Card', 'Text', 'Graph', 'Show-Styled', 'New-StrataStore', 'Update-StrataStore', 'Start-StrataApp')
     CmdletsToExport    = @()
     VariablesToExport  = @()
     AliasesToExport    = @()
