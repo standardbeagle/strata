@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Strata.Core.Properties;
 using Strata.Properties.Styling;
 using Terminal.Gui;
@@ -124,6 +125,21 @@ public sealed class TerminalGuiProjection : IProjection<View>, IDisposable
             view.Width = Dim.Absolute(DefaultDialogWidth);
             view.Height = Dim.Absolute(DefaultDialogHeight);
         }
+        else if (IsTextField(node))
+        {
+            var field = new TextField { Text = TextSelector(node) };
+            field.Width = Dim.Fill();
+            field.Height = Dim.Absolute(1);
+            view = field;
+        }
+        else if (IsList(node))
+        {
+            var list = new ListView();
+            list.SetSource(new ObservableCollection<string>(Items(node)));
+            list.Width = Dim.Fill();
+            list.Height = Dim.Fill();
+            view = list;
+        }
         else
         {
             var isLeaf = !node.Children.Any();
@@ -136,9 +152,10 @@ public sealed class TerminalGuiProjection : IProjection<View>, IDisposable
         view.Y = 0;
         view.ColorScheme = BuildColorScheme(node, cascade);
 
-        // Buttons, dialogs, and leaves take focus directly; plain containers route focus to children
-        // so the live FocusController's :focused node can receive Terminal.Gui focus on SetFocus.
-        view.CanFocus = IsButton(node) || IsDialog(node) || !node.Children.Any();
+        // Buttons, dialogs, text fields, lists, and leaves take focus directly; plain containers
+        // route focus to children so the live FocusController's :focused node can receive Terminal.Gui
+        // focus on SetFocus.
+        view.CanFocus = IsButton(node) || IsDialog(node) || IsTextField(node) || IsList(node) || !node.Children.Any();
         return view;
     }
 
@@ -160,6 +177,9 @@ public sealed class TerminalGuiProjection : IProjection<View>, IDisposable
                 break;
             case Label label when !node.Children.Any():
                 SetText(label, TextSelector(node));
+                break;
+            case ListView listView:
+                listView.SetSource(new ObservableCollection<string>(Items(node)));
                 break;
         }
 
@@ -291,6 +311,17 @@ public sealed class TerminalGuiProjection : IProjection<View>, IDisposable
         => string.Equals(node.Kind, "Dialog", StringComparison.OrdinalIgnoreCase)
             || string.Equals(node.Kind, "Modal", StringComparison.OrdinalIgnoreCase)
             || string.Equals(node.Kind, "Popup", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsTextField(ITreeNode node)
+        => string.Equals(node.Kind, "TextField", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsList(ITreeNode node)
+        => string.Equals(node.Kind, "List", StringComparison.OrdinalIgnoreCase);
+
+    private static string[] Items(ITreeNode node)
+        => node.TryGetAttribute("items", out var v) && v is IEnumerable<object?> seq
+            ? seq.Select(i => i?.ToString() ?? string.Empty).ToArray()
+            : Array.Empty<string>();
 
     private static string DialogTitle(ITreeNode node)
         => node.TryGetAttribute("Title", out var title) && title is not null
