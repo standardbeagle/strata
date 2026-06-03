@@ -64,5 +64,6 @@ A reusable layout is a function returning a parameterized subtree — see
 `samples/Strata.Demo.PowerShell/StrataTemplates.psm1` (`HostCard`), reused across the ping and
 uptime monitor samples.
 
-Rendering uses the Spectre live-redraw loop (ideal for monitoring dashboards). A Terminal.Gui
-interactive projection (focus/keyboard) over the same store + widgets is an additive future option.
+Rendering uses the Spectre live-redraw loop (ideal for monitoring dashboards). For interactive
+full-screen apps with focus and keyboard input, use `Show-StrataApp` — see the **Interactive apps**
+section above and `samples/Strata.Demo.PowerShell/db-query.ps1`.

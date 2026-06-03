@@ -187,7 +187,8 @@ function Show-StrataApp {
         }
     }.GetNewClosure()
     $action = [System.Action[string, Strata.Dsl.TerminalGui.StrataUiEvent]]$dispatch
-    [Strata.Dsl.TerminalGui.StrataInteractiveHost]::Run($Layout, $path, $Store, $action)
+    $commandNames = [string[]]@($script:StrataHandlers.Keys | Where-Object { $_ -like 'cmd:*' } | ForEach-Object { $_.Substring(4) })
+    [Strata.Dsl.TerminalGui.StrataInteractiveHost]::Run($Layout, $path, $Store, $action, $commandNames)
 }
 
 Export-ModuleMember -Function Element, Stack, Card, Text, Graph, Button, TextField, List, Show-Styled, New-StrataStore, Update-StrataStore, Start-StrataApp, Register-StrataCommand, Show-StrataApp

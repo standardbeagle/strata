@@ -20,12 +20,18 @@ public sealed class StrataInteractiveHost
     private readonly StrataElement _root;
     private readonly StrataStore _store;
     private readonly Action<string, StrataUiEvent> _invokeHandler;
+    private readonly string[] _commandNames;
 
-    private StrataInteractiveHost(StrataElement root, StrataStore store, Action<string, StrataUiEvent> invokeHandler)
+    private StrataInteractiveHost(
+        StrataElement root,
+        StrataStore store,
+        Action<string, StrataUiEvent> invokeHandler,
+        IEnumerable<string>? commandNames)
     {
         _root = root;
         _store = store;
         _invokeHandler = invokeHandler;
+        _commandNames = commandNames?.ToArray() ?? Array.Empty<string>();
     }
 
     /// <summary>Copy each bound list's resolved array into its <c>items</c> attribute for the projection.</summary>
@@ -62,6 +68,21 @@ public sealed class StrataInteractiveHost
         }
     }
 
+    /// <summary>
+    /// Build the <see cref="CommandHandler"/> that bridges a CSS <c>command:</c> keymap named
+    /// <paramref name="name"/> to the author's dispatcher: when the command fires, invoke the
+    /// PowerShell handler registered under <c>cmd:&lt;name&gt;</c> with the focused element.
+    /// </summary>
+    public static CommandHandler MakeCommandHandler(
+        string name, StrataStore store, StrataElement fallback, Action<string, StrataUiEvent> invoke)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(fallback);
+        ArgumentNullException.ThrowIfNull(invoke);
+        return ctx => invoke($"cmd:{name}", new StrataUiEvent(store, ctx.Node as StrataElement ?? fallback, null));
+    }
+
     private static JsonNode? ResolveFirst(string jsonPath, JsonObject state)
     {
         var result = JsonPath.Parse(jsonPath).Evaluate(state);
@@ -81,14 +102,15 @@ public sealed class StrataInteractiveHost
         StrataElement root,
         string cssPath,
         StrataStore store,
-        Action<string, StrataUiEvent> invokeHandler)
+        Action<string, StrataUiEvent> invokeHandler,
+        IEnumerable<string>? commandNames = null)
     {
         ArgumentNullException.ThrowIfNull(root);
         ArgumentNullException.ThrowIfNull(cssPath);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(invokeHandler);
 
-        var host = new StrataInteractiveHost(root, store, invokeHandler);
+        var host = new StrataInteractiveHost(root, store, invokeHandler, commandNames);
 
         var registry = StylingProperties.CreateRegistry();
         InteractionProperties.RegisterAll(registry);
@@ -130,6 +152,10 @@ public sealed class StrataInteractiveHost
 
             using var input = new TerminalGuiInputSource();
             var commands = new CommandRegistry();
+            foreach (var name in _commandNames)
+            {
+                commands.Register(name, MakeCommandHandler(name, _store, _root, _invokeHandler));
+            }
             using var interaction = new InteractionHost(input, commands);
 
             void Render()

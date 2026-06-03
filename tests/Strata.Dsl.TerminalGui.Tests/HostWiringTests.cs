@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Strata.Dsl;
 using Strata.Dsl.TerminalGui;
+using Strata.Interaction;
 using Xunit;
 
 namespace Strata.Dsl.TerminalGui.Tests;
@@ -42,5 +43,23 @@ public sealed class HostWiringTests
 
         act.Should().NotThrow();
         store.State.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void MakeCommandHandler_invokes_dispatcher_with_cmd_prefixed_id_and_focused_element()
+    {
+        var store = StrataStore.FromJson("{}");
+        var root = new StrataElement("Stack");
+        var focused = new StrataElement("Button");
+        string? gotId = null;
+        StrataUiEvent? gotEvent = null;
+        Action<string, StrataUiEvent> invoke = (id, ev) => { gotId = id; gotEvent = ev; };
+
+        var handler = StrataInteractiveHost.MakeCommandHandler("run-query", store, root, invoke);
+        handler(new CommandContext(focused, new HostEvent.Custom("custom.x", null), null!));
+
+        gotId.Should().Be("cmd:run-query");
+        gotEvent!.Element.Should().BeSameAs(focused);
+        gotEvent.Store.Should().BeSameAs(store);
     }
 }
