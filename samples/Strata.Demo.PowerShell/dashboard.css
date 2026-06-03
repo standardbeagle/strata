@@ -1,0 +1,22 @@
+/* Strata reactive dashboard styling — shared by the ping and uptime monitors. */
+Text {
+    color: white;
+}
+
+Text.h1 {
+    color: brightcyan;
+    font-weight: bold;
+}
+
+Text.h2 {
+    color: brightwhite;
+    font-weight: bold;
+}
+
+Text.metric {
+    color: brightyellow;
+}
+
+Graph.spark {
+    color: brightgreen;
+}
