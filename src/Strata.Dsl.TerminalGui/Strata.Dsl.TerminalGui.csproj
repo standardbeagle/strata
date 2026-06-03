@@ -7,6 +7,12 @@
     <Description>Interactive Terminal.Gui host for the Strata PowerShell DSL: full-screen apps with focusable widgets, text input, and lists bound to the reactive store.</Description>
     <!-- Copy runtime deps into bin so the PowerShell module can Add-Type the assembly. -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- AOT/trim exception: Terminal.Gui v2 (prealpha) is not AOT/trim clean; this package
+         depends on it directly and inherits the same restriction as Strata.Render.TerminalGui. -->
+    <IsAotCompatible>false</IsAotCompatible>
+    <IsTrimmable>false</IsTrimmable>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>false</EnableAotAnalyzer>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />
