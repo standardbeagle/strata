@@ -11,7 +11,7 @@ public static class StrataNode
     public static StrataElement Create(
         string kind,
         string? id = null,
-        IEnumerable<string>? classes = null,
+        string[]? classes = null,
         IDictionary<string, object?>? attributes = null)
         => new(kind, string.IsNullOrWhiteSpace(id) ? null : id, classes, attributes);
 }
