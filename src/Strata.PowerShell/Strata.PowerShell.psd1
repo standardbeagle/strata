@@ -7,8 +7,8 @@
     Copyright          = 'Copyright (c) 2026 Andy Brummer'
     Description        = 'Author responsive terminal UIs in PowerShell, rendered by Strata.'
     PowerShellVersion  = '7.4'
-    RequiredAssemblies = @('Strata.Dsl.dll')
-    FunctionsToExport  = @('Element', 'Stack', 'Card', 'Text', 'Graph', 'Show-Styled', 'New-StrataStore', 'Update-StrataStore', 'Start-StrataApp')
+    RequiredAssemblies = @('Strata.Dsl.dll', 'Strata.Dsl.TerminalGui.dll')
+    FunctionsToExport  = @('Element', 'Stack', 'Card', 'Text', 'Graph', 'Button', 'TextField', 'List', 'Show-Styled', 'New-StrataStore', 'Update-StrataStore', 'Start-StrataApp', 'Register-StrataCommand', 'Show-StrataApp')
     CmdletsToExport    = @()
     VariablesToExport  = @()
     AliasesToExport    = @()

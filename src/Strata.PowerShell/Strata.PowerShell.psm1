@@ -3,6 +3,16 @@
 
 Set-StrictMode -Version Latest
 
+$script:StrataHandlers = [System.Collections.Generic.Dictionary[string, scriptblock]]::new()
+$script:StrataHandlerSeq = 0
+
+function script:Register-Handler([scriptblock]$Block) {
+    $script:StrataHandlerSeq++
+    $id = "h$($script:StrataHandlerSeq)"
+    $script:StrataHandlers[$id] = $Block
+    return $id
+}
+
 function Element {
     [CmdletBinding()]
     param(
@@ -112,4 +122,72 @@ function Start-StrataApp {
     [Strata.Dsl.StrataLiveHost]::Attach($Layout, $path, $Store)
 }
 
-Export-ModuleMember -Function Element, Stack, Card, Text, Graph, Show-Styled, New-StrataStore, Update-StrataStore, Start-StrataApp
+function Button {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, Position = 0)][string]$Label,
+        [scriptblock]$OnSelect,
+        [string]$Class, [string]$Id, [hashtable]$Attr
+    )
+    $merged = if ($Attr) { $Attr.Clone() } else { @{} }
+    $merged['text'] = $Label
+    if ($OnSelect) { $merged['on-select'] = Register-Handler $OnSelect }
+    Element -Kind 'Button' -Class $Class -Id $Id -Attr $merged
+}
+
+function TextField {
+    [CmdletBinding()]
+    param(
+        [string]$Bind,
+        [scriptblock]$OnChange,
+        [string]$Class, [string]$Id, [hashtable]$Attr
+    )
+    $merged = if ($Attr) { $Attr.Clone() } else { @{} }
+    if ($Bind) { $merged['bind-value'] = $Bind }
+    if ($OnChange) { $merged['on-change'] = Register-Handler $OnChange }
+    Element -Kind 'TextField' -Class $Class -Id $Id -Attr $merged
+}
+
+function List {
+    [CmdletBinding()]
+    param(
+        [string]$Bind,
+        [scriptblock]$OnEnter,
+        [string]$Class, [string]$Id, [hashtable]$Attr
+    )
+    $merged = if ($Attr) { $Attr.Clone() } else { @{} }
+    if ($Bind) { $merged['bind-data'] = $Bind }
+    if ($OnEnter) { $merged['on-enter'] = Register-Handler $OnEnter }
+    Element -Kind 'List' -Class $Class -Id $Id -Attr $merged
+}
+
+function Register-StrataCommand {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][scriptblock]$Action
+    )
+    $script:StrataHandlers["cmd:$Name"] = $Action
+}
+
+function Show-StrataApp {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][Strata.Dsl.StrataElement]$Layout,
+        [Parameter(Mandatory)][Strata.Dsl.StrataStore]$Store,
+        [Parameter(Mandatory)][string]$Stylesheet
+    )
+    $path = (Resolve-Path -LiteralPath $Stylesheet).ProviderPath
+    $handlers = $script:StrataHandlers
+    $dispatch = {
+        param($id, $ev)
+        $block = $null
+        if ($handlers.TryGetValue($id, [ref]$block)) {
+            & $block $ev
+        }
+    }.GetNewClosure()
+    $action = [System.Action[string, Strata.Dsl.TerminalGui.StrataUiEvent]]$dispatch
+    [Strata.Dsl.TerminalGui.StrataInteractiveHost]::Run($Layout, $path, $Store, $action)
+}
+
+Export-ModuleMember -Function Element, Stack, Card, Text, Graph, Button, TextField, List, Show-Styled, New-StrataStore, Update-StrataStore, Start-StrataApp, Register-StrataCommand, Show-StrataApp

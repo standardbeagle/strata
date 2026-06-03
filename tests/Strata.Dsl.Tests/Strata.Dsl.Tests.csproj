@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Strata.Dsl\Strata.Dsl.csproj" />
+    <ProjectReference Include="..\..\src\Strata.Dsl.TerminalGui\Strata.Dsl.TerminalGui.csproj" />
   </ItemGroup>
 
   <!-- Module files copy beside Strata.Dsl.dll at the test output root so the manifest's
