@@ -11,6 +11,25 @@ derived from git tags via [MinVer](https://github.com/adamralph/minver) (tag pre
 
 ### Added
 
+- **PowerShell DSL & reactive live dashboards** (`Strata.Dsl` + the `Strata.PowerShell` module) —
+  author a responsive TUI in a `.ps1`, the terminal equivalent of an HTA app:
+  - **DSL element model** — `StrataElement` (a mutable, reference-stable `ITreeNode`), the
+    `StrataNode` factory, and pure-PowerShell composition functions (`Stack`, `Card`, `Text`,
+    `Graph`, `Element`) that build a styled element tree with scriptblock nesting.
+  - **Render facade** — `StrataConsole.Render` / `Show-Styled` cascade a layout against a CSS file
+    and render once via the Spectre projection.
+  - **Reactive store** — `StrataStore` holds state as a `JsonObject` with dotted-path `Set`/`Append`
+    (+front-trim cap for scrolling history) and a `Changed` event; `New-StrataStore` /
+    `Update-StrataStore` expose it to PowerShell.
+  - **Data binding** — `StrataBinder` resolves `bind-text` / `bind-data` (JSONPath, via JsonPath.Net)
+    against store state, writing `text` / `data` attributes in place.
+  - **Graph widget** — a `Graph` element renders its bound numeric series as a block-character
+    sparkline (`Sparkline`); the `StrataText` selector is shared by both render paths.
+  - **Live host** — `StrataLiveHost` / `Start-StrataApp` re-bind, re-cascade, and redraw the console
+    on every store change, driving live monitoring dashboards from an author-owned sampling loop.
+  - **Templates** — reusable layouts are PowerShell functions returning parameterized subtrees;
+    `samples/Strata.Demo.PowerShell` ships a `HostCard` template reused across `ping-monitor.ps1`
+    and `uptime-monitor.ps1`.
 - **Native widgets & overlay layout** — kind-aware projection of interactive controls and
   floating surfaces, in both renderers:
   - **Button** — a node of kind `Button` projects to a native control: a Terminal.Gui `Button`
