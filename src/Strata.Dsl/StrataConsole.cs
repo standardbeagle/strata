@@ -28,11 +28,7 @@ public static class StrataConsole
         var stylesheet = new CssStylesheetParser(new CssSelectorLanguage(), registry).Parse(css);
         var cascade = new Cascade(registry).Compute(root, stylesheet);
 
-        var projection = new SpectreProjection
-        {
-            TextSelector = node =>
-                node.TryGetAttribute("text", out var value) ? value?.ToString() ?? string.Empty : string.Empty,
-        };
+        var projection = new SpectreProjection { TextSelector = StrataText.ForNode };
 
         console.Write(projection.Project(root, cascade));
     }

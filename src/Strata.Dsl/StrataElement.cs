@@ -66,4 +66,11 @@ public sealed class StrataElement : ITreeNode
         _children.Add(child);
         return this;
     }
+
+    /// <summary>Set or replace an attribute in place. Data binding writes resolved values here.</summary>
+    public void SetAttribute(string name, object? value)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        _attributes[name] = value;
+    }
 }

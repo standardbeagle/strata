@@ -17,5 +17,6 @@
     <ProjectReference Include="..\Strata.Properties.Styling\Strata.Properties.Styling.csproj" />
     <ProjectReference Include="..\Strata.Render.Spectre\Strata.Render.Spectre.csproj" />
     <PackageReference Include="Spectre.Console" />
+    <PackageReference Include="JsonPath.Net" />
   </ItemGroup>
 </Project>
