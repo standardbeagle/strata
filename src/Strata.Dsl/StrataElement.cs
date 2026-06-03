@@ -1,3 +1,5 @@
+using Strata.Interaction;
+
 namespace Strata.Dsl;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Strata.Dsl;
 /// pseudo-state, and child collections so later sub-projects (focus, live state) can mutate it
 /// in place.
 /// </summary>
-public sealed class StrataElement : ITreeNode
+public sealed class StrataElement : ITreeNode, IPseudoStateMutable
 {
     private readonly List<StrataElement> _children = new();
     private readonly HashSet<string> _classes;
@@ -72,5 +74,19 @@ public sealed class StrataElement : ITreeNode
     {
         ArgumentNullException.ThrowIfNull(name);
         _attributes[name] = value;
+    }
+
+    /// <inheritdoc />
+    public bool AddPseudoState(string state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        return _pseudoStates.Add(state);
+    }
+
+    /// <inheritdoc />
+    public bool RemovePseudoState(string state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        return _pseudoStates.Remove(state);
     }
 }
