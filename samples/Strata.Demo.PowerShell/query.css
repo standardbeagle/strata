@@ -1,0 +1,8 @@
+/* Strata interactive demo — DB query tool. */
+Text.h1 { color: brightcyan; font-weight: bold; }
+TextField { color: brightwhite; }
+TextField:focused { color: black; background: brightcyan; }
+Button { color: brightgreen; }
+Button:focused { color: black; background: brightgreen; }
+List { color: white; }
+List:focused { color: brightyellow; }

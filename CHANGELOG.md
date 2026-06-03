@@ -30,6 +30,12 @@ derived from git tags via [MinVer](https://github.com/adamralph/minver) (tag pre
   - **Templates** — reusable layouts are PowerShell functions returning parameterized subtrees;
     `samples/Strata.Demo.PowerShell` ships a `HostCard` template reused across `ping-monitor.ps1`
     and `uptime-monitor.ps1`.
+  - **Interactive Terminal.Gui apps** (`Strata.Dsl.TerminalGui` + `Show-StrataApp`) — full-screen
+    apps with focusable `Button` (`-OnSelect`), two-way-bound `TextField` (`-Bind`/`-OnChange`), and
+    scrollable/selectable `List` (`-Bind`/`-OnEnter`), driven by the reactive store. `StrataElement`
+    implements `IPseudoStateMutable` so the existing `FocusController`/`SelectionController` toggle
+    `:focused`/`:selected` on DSL elements. CSS `command:` keymaps register via
+    `Register-StrataCommand`. Sample: `samples/Strata.Demo.PowerShell/db-query.ps1`.
 - **Native widgets & overlay layout** — kind-aware projection of interactive controls and
   floating surfaces, in both renderers:
   - **Button** — a node of kind `Button` projects to a native control: a Terminal.Gui `Button`
