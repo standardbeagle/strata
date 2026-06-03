@@ -5,6 +5,10 @@
     <IsPackable>true</IsPackable>
     <PackageId>StandardBeagle.Strata.Dsl</PackageId>
     <Description>PowerShell-facing DSL element model and console render facade for Strata: build a styled element tree from PowerShell and render it via the Spectre projection.</Description>
+    <!-- Copy NuGet runtime deps (Spectre.Console, transitive) into bin so the assembly is
+         self-contained for PowerShell `Add-Type` / module consumers. Affects the build output
+         directory only; the published NuGet package still declares its deps as package refs. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Strata.Abstractions\Strata.Abstractions.csproj" />

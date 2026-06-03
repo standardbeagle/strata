@@ -64,4 +64,21 @@ public sealed class DslModuleTests
         text.Kind.Should().Be("Text");
         text.Parent.Should().BeSameAs(card);
     }
+
+    [Fact]
+    public void ShowStyled_renders_layout_without_error()
+    {
+        var cssPath = Path.Combine(Path.GetTempPath(), "strata-show-" + Guid.NewGuid().ToString("N") + ".css");
+        File.WriteAllText(cssPath, "Text { color: white; }");
+        try
+        {
+            var escaped = cssPath.Replace("\\", "\\\\");
+            var act = () => Run($"Stack {{ Text 'Ping Monitor' }} | Show-Styled -Stylesheet '{escaped}'");
+            act.Should().NotThrow();
+        }
+        finally
+        {
+            File.Delete(cssPath);
+        }
+    }
 }

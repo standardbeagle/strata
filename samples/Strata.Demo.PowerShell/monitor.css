@@ -1,0 +1,13 @@
+/* Strata PowerShell DSL demo — styling a simple ping-monitor layout. */
+Text {
+    color: white;
+}
+
+Text.h1 {
+    color: brightcyan;
+    font-weight: bold;
+}
+
+Card {
+    color: brightgreen;
+}
