@@ -1,10 +1,13 @@
 # Shared loader for the Strata PowerShell demos. Dot-source from a monitor script:
 #   . "$PSScriptRoot/bootstrap.ps1"
 #
-# Points the default load context at the Strata.Dsl build output (so Spectre.Console and the
-# other Strata.* runtime deps resolve), loads Strata.Dsl, then imports the module + templates.
+# Points the default load context at the Strata.Dsl.TerminalGui build output — its bin (via
+# CopyLocalLockFileAssemblies) holds every runtime dep the module needs: Strata.Dsl, Spectre.Console,
+# Terminal.Gui, JsonPath.Net and the rest. The module manifest requires both Strata.Dsl.dll and
+# Strata.Dsl.TerminalGui.dll, so we load from the dir that has both. Build it first:
+#   dotnet build src/Strata.Dsl.TerminalGui/Strata.Dsl.TerminalGui.csproj
 
-$binDir = Resolve-Path "$PSScriptRoot/../../src/Strata.Dsl/bin/Debug/net10.0"
+$binDir = Resolve-Path "$PSScriptRoot/../../src/Strata.Dsl.TerminalGui/bin/Debug/net10.0"
 
 [System.Runtime.Loader.AssemblyLoadContext]::Default.add_Resolving({
     param($context, $assemblyName)
@@ -13,7 +16,7 @@ $binDir = Resolve-Path "$PSScriptRoot/../../src/Strata.Dsl/bin/Debug/net10.0"
     return $null
 })
 
-Add-Type -Path (Join-Path $binDir 'Strata.Dsl.dll')
+Add-Type -Path (Join-Path $binDir 'Strata.Dsl.TerminalGui.dll')
 Import-Module "$PSScriptRoot/../../src/Strata.PowerShell/Strata.PowerShell.psd1" -Force
 Import-Module "$PSScriptRoot/StrataTemplates.psm1" -Force
 

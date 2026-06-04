@@ -1,0 +1,16 @@
+/* Shared styling for the Strata demo dashboards. */
+
+Text       { color: white; }
+Text.h1    { color: brightcyan;  font-weight: bold; }
+Text.h2    { color: brightwhite; font-weight: bold; }
+Text.big   { color: brightwhite; font-weight: bold; }
+Text.stat  { color: gray; }
+Text.metric{ color: brightyellow; }
+Text.bar   { color: brightcyan; }
+Text.up    { color: brightgreen; font-weight: bold; }
+Text.down  { color: brightred;   font-weight: bold; }
+Text.dim   { color: gray; }
+
+Graph      { color: brightgreen; }
+Graph.spark{ color: brightgreen; }
+Graph.load { color: brightmagenta; }
