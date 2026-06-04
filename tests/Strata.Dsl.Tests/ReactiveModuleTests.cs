@@ -46,6 +46,15 @@ public sealed class ReactiveModuleTests
     }
 
     [Fact]
+    public void Text_bindclass_sets_bind_class_attribute()
+    {
+        var text = Single<StrataElement>(Run("Text 'x' -BindClass '$.status' -Class 'metric'"));
+        text.TryGetAttribute("bind-class", out var v).Should().BeTrue();
+        v.Should().Be("$.status");
+        text.Classes.Should().Contain("metric");
+    }
+
+    [Fact]
     public void New_and_Update_store_roundtrip()
     {
         var store = Single<StrataStore>(Run("""

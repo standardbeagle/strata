@@ -30,6 +30,10 @@ derived from git tags via [MinVer](https://github.com/adamralph/minver) (tag pre
   - **Templates** — reusable layouts are PowerShell functions returning parameterized subtrees;
     `samples/Strata.Demo.PowerShell` ships a `HostCard` template reused across `ping-monitor.ps1`
     and `uptime-monitor.ps1`.
+  - **Data-bound CSS classes** — `Text`/`Card -BindClass '$.status'` binds a store value to an
+    element's class set (`StrataBinder` resolves `bind-class`; `StrataElement.SetBoundClasses`
+    merges over static classes). A store value can drive styling — e.g. `.up`/`.down`/`.ok`/`.fail`
+    color a status line green/red without per-value markup.
   - **Interactive Terminal.Gui apps** (`Strata.Dsl.TerminalGui` + `Show-StrataApp`) — full-screen
     apps with focusable `Button` (`-OnSelect`), two-way-bound `TextField` (`-Bind`/`-OnChange`), and
     scrollable/selectable `List` (`-Bind`/`-OnEnter`), driven by the reactive store. `StrataElement`

@@ -49,8 +49,10 @@ function Stack {
 
 function Card {
     [CmdletBinding()]
-    param([string]$Class, [string]$Id, [hashtable]$Attr, [Parameter(Position = 0)][scriptblock]$Children)
-    Element -Kind 'Card' -Class $Class -Id $Id -Attr $Attr -Children $Children
+    param([string]$Class, [string]$Id, [string]$BindClass, [hashtable]$Attr, [Parameter(Position = 0)][scriptblock]$Children)
+    $merged = if ($Attr) { $Attr.Clone() } else { @{} }
+    if ($BindClass) { $merged['bind-class'] = $BindClass }
+    Element -Kind 'Card' -Class $Class -Id $Id -Attr $merged -Children $Children
 }
 
 function Text {
@@ -58,6 +60,7 @@ function Text {
     param(
         [Parameter(Position = 0)][string]$Content,
         [string]$Bind,
+        [string]$BindClass,
         [string]$Class,
         [string]$Id,
         [hashtable]$Attr
@@ -65,6 +68,7 @@ function Text {
     $merged = if ($Attr) { $Attr.Clone() } else { @{} }
     if ($Content) { $merged['text'] = $Content }
     if ($Bind) { $merged['bind-text'] = $Bind }
+    if ($BindClass) { $merged['bind-class'] = $BindClass }
     Element -Kind 'Text' -Class $Class -Id $Id -Attr $merged
 }
 

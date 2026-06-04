@@ -39,6 +39,15 @@ public static class StrataBinder
             }
         }
 
+        if (element.TryGetAttribute("bind-class", out var classPath) && classPath is string cp)
+        {
+            var node = ResolveFirst(cp, state);
+            var tokens = node is null
+                ? Array.Empty<string>()
+                : ScalarString(node).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            element.SetBoundClasses(tokens);
+        }
+
         foreach (var child in element.Children)
         {
             if (child is StrataElement strataChild)

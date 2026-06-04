@@ -12,6 +12,8 @@ public sealed class StrataElement : ITreeNode, IPseudoStateMutable
 {
     private readonly List<StrataElement> _children = new();
     private readonly HashSet<string> _classes;
+    private HashSet<string>? _boundClasses;
+    private IReadOnlySet<string> _effectiveClasses;
     private readonly HashSet<string> _pseudoStates = new(StringComparer.Ordinal);
     private readonly Dictionary<string, object?> _attributes;
 
@@ -29,6 +31,7 @@ public sealed class StrataElement : ITreeNode, IPseudoStateMutable
             : new HashSet<string>(
                 classes.Where(c => !string.IsNullOrWhiteSpace(c)),
                 StringComparer.Ordinal);
+        _effectiveClasses = _classes;
         _attributes = attributes is null
             ? new Dictionary<string, object?>(StringComparer.Ordinal)
             : new Dictionary<string, object?>(attributes, StringComparer.Ordinal);
@@ -41,7 +44,7 @@ public sealed class StrataElement : ITreeNode, IPseudoStateMutable
     public string? Id { get; }
 
     /// <inheritdoc />
-    public IReadOnlySet<string> Classes => _classes;
+    public IReadOnlySet<string> Classes => _effectiveClasses;
 
     /// <inheritdoc />
     public IReadOnlySet<string> PseudoStates => _pseudoStates;
@@ -74,6 +77,35 @@ public sealed class StrataElement : ITreeNode, IPseudoStateMutable
     {
         ArgumentNullException.ThrowIfNull(name);
         _attributes[name] = value;
+    }
+
+    /// <summary>
+    /// Replace the data-bound class set (from a <c>bind-class</c> binding) while preserving the
+    /// element's static classes. Re-cascading after this applies the matching <c>.class</c> rules,
+    /// so a store value can drive styling (e.g. <c>.up</c> / <c>.down</c>).
+    /// </summary>
+    public void SetBoundClasses(IEnumerable<string> tokens)
+    {
+        ArgumentNullException.ThrowIfNull(tokens);
+        _boundClasses ??= new HashSet<string>(StringComparer.Ordinal);
+        _boundClasses.Clear();
+        foreach (var token in tokens)
+        {
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                _boundClasses.Add(token);
+            }
+        }
+
+        if (_boundClasses.Count == 0)
+        {
+            _effectiveClasses = _classes;
+            return;
+        }
+
+        var combined = new HashSet<string>(_classes, StringComparer.Ordinal);
+        combined.UnionWith(_boundClasses);
+        _effectiveClasses = combined;
     }
 
     /// <inheritdoc />
