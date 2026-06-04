@@ -16,7 +16,7 @@ Import-Module "$PSScriptRoot/DemoHelpers.psm1" -Force
 $stages = 'restore', 'build', 'test', 'lint', 'pack'
 
 $init = @{ log = 'pipeline queued'; stages = @{} }
-foreach ($s in $stages) { $init.stages[$s] = @{ status = '·  pending'; elapsed = '' } }
+foreach ($s in $stages) { $init.stages[$s] = @{ status = '·  pending'; cls = 'pending'; elapsed = '' } }
 $store = New-StrataStore $init
 
 $layout = Stack -Class 'main' {
@@ -25,7 +25,7 @@ $layout = Stack -Class 'main' {
         $base = '$.stages.' + $s
         Card -Class 'stage' {
             Text ($s.PadRight(10)) -Class 'h2'
-            Text -Bind "$base.status" -Class 'metric'
+            Text -Bind "$base.status" -BindClass "$base.cls"
             Text -Bind "$base.elapsed" -Class 'stat'
         }
     }
@@ -40,6 +40,7 @@ try {
     foreach ($s in $stages) {
         $base = '$.stages.' + $s
         Update-StrataStore $store -Set "$base.status" -Value '●  running'
+        Update-StrataStore $store -Set "$base.cls" -Value 'run'
         Update-StrataStore $store -Set '$.log' -Value "→ $s started"
 
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
@@ -52,11 +53,13 @@ try {
 
         if ($s -eq $FailAt) {
             Update-StrataStore $store -Set "$base.status" -Value '✗  failed'
+            Update-StrataStore $store -Set "$base.cls" -Value 'fail'
             Update-StrataStore $store -Set '$.log' -Value "✗ $s FAILED after $('{0:0.0}s' -f $sw.Elapsed.TotalSeconds) — pipeline aborted"
             break
         }
 
         Update-StrataStore $store -Set "$base.status" -Value '✓  ok'
+        Update-StrataStore $store -Set "$base.cls" -Value 'ok'
         Update-StrataStore $store -Set "$base.elapsed" -Value ('{0:0.0}s' -f $sw.Elapsed.TotalSeconds)
         Update-StrataStore $store -Set '$.log' -Value "✓ $s passed in $('{0:0.0}s' -f $sw.Elapsed.TotalSeconds)"
     }

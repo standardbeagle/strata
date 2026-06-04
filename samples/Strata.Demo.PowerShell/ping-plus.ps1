@@ -11,7 +11,7 @@ param([string]$Target = 'google.com', [switch]$Simulate, [int]$Samples = 40)
 . "$PSScriptRoot/bootstrap.ps1"
 Import-Module "$PSScriptRoot/DemoHelpers.psm1" -Force
 
-$store = New-StrataStore @{ big = '—'; stats = 'waiting…'; loss = '0% loss'; history = @() }
+$store = New-StrataStore @{ big = '—'; stats = 'waiting…'; loss = '0% loss'; losscls = 'ok'; history = @() }
 
 $layout = Stack -Class 'main' {
     Text "PING  $Target" -Class 'h1'
@@ -19,7 +19,7 @@ $layout = Stack -Class 'main' {
         Text -Bind '$.big'     -Class 'big'
         Graph -Bind '$.history' -Class 'spark'
         Text -Bind '$.stats'   -Class 'stat'
-        Text -Bind '$.loss'    -Class 'metric'
+        Text -Bind '$.loss'    -BindClass '$.losscls'
     }
 }
 
@@ -53,6 +53,8 @@ try {
 
         $lossPct = if ($sent -gt 0) { [int][Math]::Round(100 * ($sent - $recv) / $sent) } else { 0 }
         Update-StrataStore $store -Set '$.loss' -Value ('{0}% loss   ({1}/{2} received)' -f $lossPct, $recv, $sent)
+        $lossCls = if ($lossPct -gt 0) { 'down' } else { 'ok' }
+        Update-StrataStore $store -Set '$.losscls' -Value $lossCls
         Start-Sleep -Milliseconds 700
     }
 }

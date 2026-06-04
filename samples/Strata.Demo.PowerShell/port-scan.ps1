@@ -24,7 +24,7 @@ $targets = $Target | ForEach-Object {
 }
 
 $init = @{ targets = @{} }
-foreach ($t in $targets) { $init.targets[$t.Key] = @{ status = '· probing'; ms = ''; history = @() } }
+foreach ($t in $targets) { $init.targets[$t.Key] = @{ status = '· probing'; cls = 'pending'; ms = ''; history = @() } }
 $store = New-StrataStore $init
 
 $layout = Stack -Class 'main' {
@@ -33,7 +33,7 @@ $layout = Stack -Class 'main' {
         $base = '$.targets.' + $t.Key
         Card -Class 'host' {
             Text $t.Name -Class 'h2'
-            Text -Bind "$base.status" -Class 'metric'
+            Text -Bind "$base.status" -BindClass "$base.cls"
             Graph -Bind "$base.history" -Class 'spark'
             Text -Bind "$base.ms" -Class 'stat'
         }
@@ -56,10 +56,12 @@ try {
             if ($probe.Up) {
                 Update-StrataStore $store -Append "$base.history" -Value $probe.Ms -Cap 40
                 Update-StrataStore $store -Set "$base.status" -Value ('▲ UP   {0:0} ms' -f $probe.Ms)
+                Update-StrataStore $store -Set "$base.cls" -Value 'up'
                 Update-StrataStore $store -Set "$base.ms" -Value ('connect {0:0} ms' -f $probe.Ms)
             }
             else {
                 Update-StrataStore $store -Set "$base.status" -Value '▼ DOWN'
+                Update-StrataStore $store -Set "$base.cls" -Value 'down'
                 Update-StrataStore $store -Set "$base.ms" -Value 'no connection'
             }
         }

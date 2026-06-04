@@ -11,6 +11,12 @@ Text.up    { color: brightgreen; font-weight: bold; }
 Text.down  { color: brightred;   font-weight: bold; }
 Text.dim   { color: gray; }
 
+/* status classes driven by -BindClass (store value selects the colour) */
+Text.ok      { color: brightgreen;  font-weight: bold; }
+Text.fail    { color: brightred;    font-weight: bold; }
+Text.run     { color: brightyellow; font-weight: bold; }
+Text.pending { color: gray; }
+
 Graph      { color: brightgreen; }
 Graph.spark{ color: brightgreen; }
 Graph.load { color: brightmagenta; }
