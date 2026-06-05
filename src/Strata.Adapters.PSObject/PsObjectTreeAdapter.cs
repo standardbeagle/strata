@@ -25,6 +25,9 @@ public sealed class PsObjectTreeAdapter : ITreeAdapter<global::System.Management
     /// <summary>Returns the <c>Kind</c> string for a wrapped PSObject.</summary>
     public delegate string KindSelector(global::System.Management.Automation.PSObject source);
 
+    /// <summary>Returns the full type-identity chain (<c>IKindHierarchy.KindHierarchy</c>) for a wrapped PSObject.</summary>
+    public delegate IReadOnlyList<string> KindHierarchySelector(global::System.Management.Automation.PSObject source);
+
     /// <summary>Returns the optional <c>Id</c> string for a wrapped PSObject.</summary>
     public delegate string? IdSelector(global::System.Management.Automation.PSObject source);
 
@@ -37,6 +40,7 @@ public sealed class PsObjectTreeAdapter : ITreeAdapter<global::System.Management
     private readonly ConditionalWeakTable<global::System.Management.Automation.PSObject, PsObjectNode> _cache = new();
     private readonly ChildAccessor _childAccessor;
     private readonly KindSelector _kind;
+    private readonly KindHierarchySelector _kindHierarchy;
     private readonly IdSelector _id;
     private readonly ClassSelector _classes;
     private readonly PseudoStateSelector _pseudoStates;
@@ -47,10 +51,12 @@ public sealed class PsObjectTreeAdapter : ITreeAdapter<global::System.Management
         KindSelector? kind = null,
         IdSelector? id = null,
         ClassSelector? classes = null,
-        PseudoStateSelector? pseudoStates = null)
+        PseudoStateSelector? pseudoStates = null,
+        KindHierarchySelector? kindHierarchy = null)
     {
         _childAccessor = childAccessor ?? s_flatChildren;
         _kind = kind ?? DefaultKind;
+        _kindHierarchy = kindHierarchy ?? DefaultKindHierarchy;
         _id = id ?? DefaultId;
         _classes = classes ?? s_emptyClasses;
         _pseudoStates = pseudoStates ?? s_emptyPseudoStates;
@@ -64,6 +70,9 @@ public sealed class PsObjectTreeAdapter : ITreeAdapter<global::System.Management
 
         /// <summary>Kind selector; default is <c>TypeNames[0]</c> with namespace stripped.</summary>
         public KindSelector? Kind { get; set; }
+
+        /// <summary>Kind-hierarchy selector; default is the full <c>TypeNames</c> chain, each namespace stripped and de-duplicated.</summary>
+        public KindHierarchySelector? KindHierarchy { get; set; }
 
         /// <summary>Id selector; default reads <c>Id</c> then <c>Name</c> properties.</summary>
         public IdSelector? Id { get; set; }
@@ -84,7 +93,8 @@ public sealed class PsObjectTreeAdapter : ITreeAdapter<global::System.Management
             options.Kind,
             options.Id,
             options.Classes,
-            options.PseudoStates);
+            options.PseudoStates,
+            options.KindHierarchy);
     }
 
     /// <inheritdoc/>
@@ -106,6 +116,7 @@ public sealed class PsObjectTreeAdapter : ITreeAdapter<global::System.Management
             this,
             parent,
             _kind(source),
+            _kindHierarchy(source),
             _id(source),
             ToReadOnlySet(_classes(source)),
             ToReadOnlySet(_pseudoStates(source)));
@@ -158,6 +169,44 @@ public sealed class PsObjectTreeAdapter : ITreeAdapter<global::System.Management
         }
 
         return source.BaseObject?.GetType().Name ?? "PSObject";
+    }
+
+    /// <summary>
+    /// Default <see cref="KindHierarchySelector"/>: the object's full <c>TypeNames</c> chain
+    /// (most-derived first), each namespace stripped and de-duplicated in order — e.g. a
+    /// <c>Get-ChildItem</c> file yields <c>FileInfo</c>, <c>FileSystemInfo</c>,
+    /// <c>MarshalByRefObject</c>, <c>Object</c>. This lets a base-type selector
+    /// (<c>FileSystemInfo</c>) match every derived kind. Falls back to the runtime type name when
+    /// <c>TypeNames</c> is empty.
+    /// </summary>
+    public static IReadOnlyList<string> DefaultKindHierarchy(global::System.Management.Automation.PSObject source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var names = source.TypeNames;
+        if (names is null || names.Count == 0)
+        {
+            var fallback = source.BaseObject?.GetType().Name;
+            return string.IsNullOrEmpty(fallback) ? Array.Empty<string>() : new[] { fallback };
+        }
+
+        var result = new List<string>(names.Count);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var name in names)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                continue;
+            }
+
+            var lastDot = name.LastIndexOf('.');
+            var bare = lastDot >= 0 ? name[(lastDot + 1)..] : name;
+            if (seen.Add(bare))
+            {
+                result.Add(bare);
+            }
+        }
+
+        return result;
     }
 
     /// <summary>Default <see cref="IdSelector"/>: reads <c>Id</c> then <c>Name</c> properties.</summary>

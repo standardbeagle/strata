@@ -1,0 +1,31 @@
+/* Filesystem listing styled by OBJECT-TYPE HIERARCHY, not leaf type alone.
+   Get-ChildItem yields FileInfo and DirectoryInfo rows; both derive from FileSystemInfo.
+   A base-type rule paints every entry once; leaf-type rules refine per kind. This is the
+   "object type matching" enhancement: a selector matches any type in the node's Kind chain
+   (IKindHierarchy), so `FileSystemInfo` covers both derived kinds. */
+
+/* Base type: matches BOTH FileInfo and DirectoryInfo through the Kind hierarchy. */
+FileSystemInfo {
+    color: white;
+}
+
+/* Leaf types refine the base. Equal (type-selector) specificity, so source order wins. */
+DirectoryInfo {
+    color: brightblue;
+    font-weight: bold;
+}
+
+FileInfo {
+    color: gray;
+}
+
+/* Class hooks still compose on top of the type cascade. */
+.executable {
+    color: brightgreen;
+    font-weight: bold;
+}
+
+.hidden {
+    color: gray;
+    font-style: italic;
+}

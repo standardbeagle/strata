@@ -36,7 +36,8 @@ internal static class SelectorMatcher
     private static bool MatchCompound(CompoundSelector compound, ITreeNode node, IPseudoClassRegistry pseudos)
     {
         if (!compound.IsUniversal && compound.Kind is not null
-            && !string.Equals(compound.Kind, node.Kind, StringComparison.Ordinal))
+            && !string.Equals(compound.Kind, node.Kind, StringComparison.Ordinal)
+            && !MatchesKindHierarchy(compound.Kind, node))
         {
             return false;
         }
@@ -79,6 +80,29 @@ internal static class SelectorMatcher
         }
 
         return true;
+    }
+
+    // A type selector matches a node not only by its primary Kind but by any entry in its
+    // IKindHierarchy chain, so a base-type rule (FileSystemInfo) covers every derived kind
+    // (FileInfo, DirectoryInfo). Nodes that don't implement IKindHierarchy keep exact-Kind-only
+    // matching — the fast path above already returned on the primary-Kind compare for them.
+    private static bool MatchesKindHierarchy(string kind, ITreeNode node)
+    {
+        if (node is not IKindHierarchy hierarchy)
+        {
+            return false;
+        }
+
+        var chain = hierarchy.KindHierarchy;
+        for (var i = 0; i < chain.Count; i++)
+        {
+            if (string.Equals(kind, chain[i], StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool MatchPseudo(PseudoEntry pseudo, ITreeNode node, IPseudoClassRegistry pseudos)

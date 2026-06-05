@@ -16,13 +16,14 @@ namespace Strata.Adapters.PSObject;
 /// <see cref="PsObjectTreeAdapter"/> using caller-configured selector delegates; the
 /// node is the immutable cached result of those resolutions.</para>
 /// </remarks>
-public sealed class PsObjectNode : ITreeNode
+public sealed class PsObjectNode : ITreeNode, IKindHierarchy
 {
     internal PsObjectNode(
         global::System.Management.Automation.PSObject source,
         PsObjectTreeAdapter adapter,
         PsObjectNode? parent,
         string kind,
+        IReadOnlyList<string> kindHierarchy,
         string? id,
         IReadOnlySet<string> classes,
         IReadOnlySet<string> pseudoStates)
@@ -31,6 +32,7 @@ public sealed class PsObjectNode : ITreeNode
         _adapter = adapter;
         Parent = parent;
         Kind = kind;
+        KindHierarchy = kindHierarchy;
         Id = id;
         Classes = classes;
         PseudoStates = pseudoStates;
@@ -43,6 +45,9 @@ public sealed class PsObjectNode : ITreeNode
 
     /// <inheritdoc/>
     public string Kind { get; }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<string> KindHierarchy { get; }
 
     /// <inheritdoc/>
     public string? Id { get; }

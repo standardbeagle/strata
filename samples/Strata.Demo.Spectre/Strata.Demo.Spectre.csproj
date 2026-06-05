@@ -9,6 +9,7 @@
   <ItemGroup>
     <None Include="procs.css" CopyToOutputDirectory="PreserveNewest" />
     <None Include="dashboard.css" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="filesystem.css" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Strata.Core\Strata.Core.csproj" />

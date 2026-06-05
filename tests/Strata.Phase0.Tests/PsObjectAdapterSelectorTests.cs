@@ -95,4 +95,57 @@ public sealed class PsObjectAdapterSelectorTests
         node.Classes.Should().BeEmpty();
         node.PseudoStates.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Default_kind_hierarchy_strips_namespaces_in_derived_to_base_order()
+    {
+        var ps = global::System.Management.Automation.PSObject.AsPSObject(new System.IO.FileInfo("nonexistent.txt"));
+
+        var node = (Strata.IKindHierarchy)new PsObjectTreeAdapter().Wrap(ps);
+
+        node.KindHierarchy.Should().ContainInOrder("FileInfo", "FileSystemInfo", "Object");
+    }
+
+    [Fact]
+    public void Base_type_selector_matches_derived_kinds_through_the_adapter()
+    {
+        var css = new Strata.Css.CssSelectorLanguage();
+        var adapter = new PsObjectTreeAdapter();
+
+        var file = adapter.Wrap(global::System.Management.Automation.PSObject.AsPSObject(
+            new System.IO.FileInfo("f.txt")));
+        var dir = adapter.Wrap(global::System.Management.Automation.PSObject.AsPSObject(
+            new System.IO.DirectoryInfo("d")));
+
+        // A base-type rule covers both derived kinds...
+        css.Parse("FileSystemInfo").Matches(file, out _).Should().BeTrue();
+        css.Parse("FileSystemInfo").Matches(dir, out _).Should().BeTrue();
+
+        // ...while a leaf-type rule still discriminates between them.
+        css.Parse("FileInfo").Matches(file, out _).Should().BeTrue();
+        css.Parse("FileInfo").Matches(dir, out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Custom_kind_hierarchy_selector_overrides_default()
+    {
+        var adapter = new PsObjectTreeAdapter(kindHierarchy: _ => new[] { "Custom", "Base" });
+        var ps = global::System.Management.Automation.PSObject.AsPSObject(new Row(1, "x", 0, false));
+
+        ((Strata.IKindHierarchy)adapter.Wrap(ps)).KindHierarchy
+            .Should().ContainInOrder("Custom", "Base");
+    }
+
+    [Fact]
+    public void Options_factory_wires_kind_hierarchy_hook()
+    {
+        var adapter = PsObjectTreeAdapter.Create(new PsObjectTreeAdapter.Options
+        {
+            KindHierarchy = _ => new[] { "A", "B" },
+        });
+        var ps = global::System.Management.Automation.PSObject.AsPSObject(new Row(7, "x", 0, false));
+
+        ((Strata.IKindHierarchy)adapter.Wrap(ps)).KindHierarchy
+            .Should().ContainInOrder("A", "B");
+    }
 }

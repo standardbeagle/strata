@@ -91,9 +91,48 @@ AnsiConsole.WriteLine();
 AnsiConsole.Write(dashProjection.Project(dashRoot, dashCascade, layout));
 AnsiConsole.WriteLine();
 
-// A minimal ITreeNode wrapper that surfaces the JSON "class" property as Classes,
-// preserving the underlying JsonTreeNode for everything else.
-internal sealed class ClassAwareNode : ITreeNode
+// --- Filesystem: style a Get-ChildItem listing by OBJECT-TYPE HIERARCHY. -------------------
+// FileInfo and DirectoryInfo both derive from FileSystemInfo; the base-type rule in
+// filesystem.css matches both via each node's "$kinds" chain (IKindHierarchy), then leaf-type
+// rules refine per kind. This is the object-type-matching enhancement on the Spectre path.
+var fsCssPath = Path.Combine(AppContext.BaseDirectory, "filesystem.css");
+var fsCss = File.ReadAllText(fsCssPath);
+
+var fsJson = JsonNode.Parse(
+    """
+    [
+      { "$type": "DirectoryInfo", "$kinds": "DirectoryInfo FileSystemInfo", "Name": "src",        "class": "" },
+      { "$type": "FileInfo",      "$kinds": "FileInfo FileSystemInfo",      "Name": "build.sh",    "class": "executable" },
+      { "$type": "FileInfo",      "$kinds": "FileInfo FileSystemInfo",      "Name": "README.md",   "class": "" },
+      { "$type": "FileInfo",      "$kinds": "FileInfo FileSystemInfo",      "Name": ".gitignore",  "class": "hidden" }
+    ]
+    """)!;
+
+ITreeNode fsRoot = new ClassAwareNode(new JsonTreeAdapter().Wrap(fsJson), parent: null);
+
+var fsRegistry = StylingProperties.CreateRegistry();
+var fsStylesheet = new CssStylesheetParser(new CssSelectorLanguage(), fsRegistry).Parse(fsCss);
+var fsCascade = new Cascade(fsRegistry).Compute(fsRoot, fsStylesheet);
+
+var fsProjection = new SpectreProjection
+{
+    TextSelector = node =>
+    {
+        node.TryGetAttribute("Name", out var name);
+        // Directories get a trailing slash; everything else (a FileSystemInfo leaf) renders bare.
+        return node.Kind == "DirectoryInfo" ? $"  {name}/" : node.Kind == "FileInfo" ? $"  {name}" : string.Empty;
+    },
+};
+
+AnsiConsole.MarkupLine("[bold]Filesystem[/] — [dim]Get-ChildItem styled by type hierarchy (filesystem.css)[/]");
+AnsiConsole.WriteLine();
+AnsiConsole.Write(fsProjection.Project(fsRoot, fsCascade));
+AnsiConsole.WriteLine();
+
+// A minimal ITreeNode wrapper that surfaces the JSON "class" property as Classes and the
+// JSON "$kinds" property as the IKindHierarchy chain, preserving the underlying JsonTreeNode
+// for everything else.
+internal sealed class ClassAwareNode : ITreeNode, IKindHierarchy
 {
     private readonly ITreeNode _inner;
     private readonly List<ClassAwareNode> _children;
@@ -117,6 +156,12 @@ internal sealed class ClassAwareNode : ITreeNode
 
         Classes = classes;
 
+        // "$kinds" lists the node's type chain (most-derived first), letting a base-type rule
+        // match every derived kind. Default to the single primary Kind when absent.
+        KindHierarchy = inner.TryGetAttribute("$kinds", out var k) && k is string ks
+            ? ks.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            : new[] { inner.Kind };
+
         // In this demo each Process is a render leaf — its JSON properties are attributes,
         // not child rows. Only the top-level array contributes child rows.
         _children = inner.Kind == "array"
@@ -125,6 +170,8 @@ internal sealed class ClassAwareNode : ITreeNode
     }
 
     public string Kind => _inner.Kind;
+
+    public IReadOnlyList<string> KindHierarchy { get; }
 
     public string? Id => _id;
 
