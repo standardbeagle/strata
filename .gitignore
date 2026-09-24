@@ -38,4 +38,6 @@ Thumbs.db
 .history/
 
 # worktrack loop state (per-clone; may contain lease-holder email)
-.worktrack/
+.worktrack/*
+!.worktrack/mcp.json
+!.worktrack/templates.json
