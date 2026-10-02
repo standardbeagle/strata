@@ -1,4 +1,8 @@
 {
   "stack": "dotnet",
+  "delivery": {
+    "landing": "main-direct",
+    "push": "per-release"
+  },
   "templates": []
 }
