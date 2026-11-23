@@ -9,6 +9,13 @@ defaults {
 }
 
 alias "build" {
+    // A rebuild hands its compile to the MSBuild nodes and VBCSCompiler an earlier build left
+    // running, outside this run's tree, so history books it at about one core while it takes the
+    // host. Measured 2026-11-23 on build1 (8 cores), `dotnet build Strata.sln --no-incremental`
+    // beside warm nodes: 0.98 cores in the tree, 5.49 outside it (p90 6.84); a cold build, whose
+    // nodes start inside the tree, ran 6.17 there. The floor is the rebuild's whole 6.47.
+    // `test` needs none: `dotnet test` starts its own nodes in its tree (5.82 of 6.36 cores).
+    cores 6.5
     command "dotnet"
     args "build" "Strata.sln"
 }
