@@ -39,3 +39,7 @@ Thumbs.db
 
 # worktrack loop state (per-clone; may contain lease-holder email)
 .worktrack/
+
+# tman shims
+/test
+/test.cmd
